@@ -16,3 +16,8 @@ config = config.resources(num_gpus=0)
 config = config.rollouts(num_rollout_workers=1)  
 
 algo = config.build(env = 'cartpole')
+print("Post build :v")
+for i in range(2):
+    result = algo.train()
+    print(f"train {i}")
+print(result['episode_reward_mean'])
