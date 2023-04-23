@@ -1,13 +1,37 @@
 """ 
-    UE5_envs.py
+    BridgeEnv
+
+    Definition of Main Bridge Envs that allow to communicate 
+    with socket to send actions and receive observations from 
+    UnrealEngine5 (UE5)
+
+    There are two (2) main BridgeEnvironments. The SingleAgent 
+    and the MultiAgent Environment 
+    
+    -   BridgeEnv 
+    -   MultiAgentBridgeEnv
+
+    In order to create a custom env, you have to inherit this 
+    environments and createa (MultiAgent)BridgeEnv instance 
+    with a initial configuration. 
+
+    You ahve to define a observation_space and actions_space from 
+    BridgeSpaces (@see unray_bridge.envs.spaces).
+
+    @author Valentina Hernandez
+    @author Andrés Morales 
+
+    @version: 0.1V
+    
+    @file bridge_env.py 
+
 """
 from .bridge.TCP_IP_Connector import ClientHandler
+from unray_bridge.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 
 import gymnasium.spaces as spaces
 import numpy as np
-
-from cartpole_engine.envs.spaces import BridgeSpaces
 
 class BridgeEnv(gymEnv): 
     """
@@ -19,11 +43,23 @@ class BridgeEnv(gymEnv):
         "render_fps": ""
     }
 
-    def __init__(self, name, ip, port, config, first_connection = False, validation = False, multiagent = False):
+    def __init__(self, 
+                 name, 
+                 ip, 
+                 port, 
+                 config, 
+                 first_connection = False, 
+                 validation = False, 
+                 multiagent = False):
+                 
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         
+        if not name:
+            print("error")
+            raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
         self.name = name # environment name for later id 
+
 
         self.observation_config = config["observation"]
         self.action_config = config["action"]
@@ -109,10 +145,6 @@ class BridgeEnv(gymEnv):
     def get_multiagent_state_dict(received_vector: np.array): 
         state = {}
 
-        
-
-        
-
         return 
     def check_termination(self, obs):
         """
@@ -146,7 +178,7 @@ class BridgeEnv(gymEnv):
         """
         print(f"action dim: {self.action_space_dim}")
 
-    def summary(self): 
+    def summary(self) -> None: 
         """
             Summary
             ---
@@ -178,24 +210,6 @@ class BridgeEnv(gymEnv):
         print("_"* TEXT_OFFSET)        
         print("")
 
-        # print("\nSocket Connection Parameters")
-        # print(f" -IP: {self.ip}\n -port: {self.port}")
-
-
-    # def get_space_type_id(self, id):
-    #     """
-    #         Get space type id 
-    #         ---
-
-    #     """
-    #     dic = {
-    #         myspaces.BOX_SPACE:           "Box Space", 
-    #         myspaces.DISCRETE_SPACE:      "Discrete Space", 
-    #         myspaces.MULTIBINARY_SPACE:   "Multibinary Space", 
-    #         myspaces.MULTIDISCRETE_SPACE: "Multidiscrete Space", 
-    #     }
-    
-    #     return dic[id]
     
     def get_space_type_instance(self, is_instance_object):
         """
@@ -226,6 +240,7 @@ class BridgeEnv(gymEnv):
 
     def validate_handler(self): 
         return self.has_handler
+
         
     def connect(self):
         if self.has_handler:
@@ -240,4 +255,148 @@ class BridgeEnv(gymEnv):
         """
         self.handler.close()
     
+class MultiAgentBridgeEnv(BridgeEnv):
+    """
+        MultiAgentBridgeEnv
+    """
+    def __init__(self, 
+                 name: str, 
+                 ip: str, 
+                 port: int, 
+                 config: dict, 
+                 first_connection = False, 
+                 validation = False, 
+                 multiagent = False):
+        
+        self.ip = ip # IP Address for IP Connection 
+        self.port = port 
+        
+        if not name:
+            print("error")
+            raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
+        self.name = name # environment name for later id 
+
+        # get all agents names 
+        self.agent_names = [] # get all agents names 
+        self.observations = {}
+        self.actions = {}
+
+        for agent_name in config:
+            self.agent_names.append(agent_name)
+            self.observations[agent_name] = config[agent_name]["observation"]
+            self.actions[agent_name] = config[agent_name]["action"]
+
+        print("Agent names: {}".format(self.agent_names))
+        print("Observations: {}".format(self.observations))
+        print("Actions: {}".format(self.actions))
+
+        self.has_handler = False # ClientHandler to begin with connection
+        self.has_connection = False
+
+        self.validation = validation
+        self.multiagent = multiagent 
+
+        self.obs = [0]
+
+        # if first_connection:
+        #     self.handler = ClientHandler(self.ip, self.port)
+
+        self.create_handler()
+
+    def get_amount_agents(self) -> int: 
+        """
+            returns de amount of agents in the multiagent env 
+        """
+        return len(self.agent_names)
+
+    def validate_actions_dict(self, actions: dict) -> bool:
+        """
+        Validate Actions Dict
+
+        Args:
+            actions (dict): [description]
+
+        Returns:
+            bool: [description]
+        """
+        return len(actions) == self.get_amount_agents() 
+    
+
+    def step(self, actions: dict):
+        """
+        Step 
+        ---
+        args:
+            - action (dict): 
+        
+        """
+        if not self.validate_actions_dict(actions):
+            raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
+
+        if not self.has_connection:
+            self.connect()
+
+        print(actions)
+
+        # create format 
+        action2send = []
+        for action in self.actions:
+            action2send.append(self.actions[action])
+            
+
+        action=np.array(action2send,dtype=np.single)
+
+        if isinstance(action, list): 
+            action = np.array(action)
+        elif isinstance(action, np.ndarray):
+            pass
+        else:
+            assert "No valid action type. Only supports <list> or <numpy.ndarray> given %s" % (type(action))
+        
+        obs = self.obs 
+
+        #terminated = self.check_termination(obs) # Check for validation to continue 
+        #action = np.insert(action, 0, np.single(terminated))
+        
+        print('[ACTION]', end=" ")
+        print(action)
+
+        # 2. Cast the action vector to a byte buffer for send.
+        action_buff = action.tobytes()
+        n = self.get_amount_obs()
+        # 3. Send the action vector to the environment. 
+        self.handler.send(action_buff) # Send action an wait response 
+        data_size = 8*(n+2)
+
+        state = self.handler.recv(data_size) # Get state vetor 
+        obs = state[0:n]
+        self.obs = obs 
+    
+        # 4. Rewards System
+        # For each frame within the termination limits, 
+        ##reward = self.counter
+        
+        reward = state[n]
+        terminated = bool(state[n+1])
+
+        
+
+        # 4. Rewards System
+        # For each frame within the termination limits, 
+        # self.counter += 1
+        # reward = self.counter
+        #reward = 0
+
+        # Additional metadata [ignore ]
+        truncated = False
+        info = {}
+
+        return obs, reward, terminated, truncated, info
+
+
+
+    
+
+
+
 
