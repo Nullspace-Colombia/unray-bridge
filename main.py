@@ -1,18 +1,67 @@
 """
-    main.py 
+Main.py 
+
+    Options to select: 
+        - singleangets: a simple example of BridgeConnection on a Cartpole 1D example
+        - multiagents: a simple example of BridgeConnection on a 
 """
-from unray_bridge.envs.envs import CartPole
-from unray_bridge.envs.bridge_env import BridgeEnv
 
-from ray.rllib.algorithms.ppo import PPOConfig
-from ray.tune.registry import register_env
+from tests.single_agents import single_agents
+from tests.multiagents import multiagents
+from argparse import ArgumentParser
+from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 
-register_env('cartpole', CartPole.get_env())
+import numpy as np
+# Constants 
+# _OPTION = "multiagents"
 
-config = PPOConfig()
+# # Parser 
+# parser = ArgumentParser()
 
-config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-config = config.resources(num_gpus=0)  
-config = config.rollouts(num_rollout_workers=1)  
+# parser.add_argument(
+#     "test",
+# )
 
-algo = config.build(env = 'cartpole')
+# if __name__ == "__main__": 
+#     # gui.print_title()
+#     if _OPTION == "single-agents":
+#         print("Single agents | CartPoleV1")
+#         single_agents()
+#     elif _OPTION == "multiagents": 
+#         multiagents()
+#     else: 
+#         print("only options are ['single-agents', 'multiagents']")
+#         print("*please select a valid option from the list above")  
+#         print("")
+from unray_bridge.envs.spaces import BridgeSpaces
+
+
+env_config  = {
+    "agent-1":{
+        "observation": BridgeSpaces.MultiDiscrete([4]),
+        "action": BridgeSpaces.Discrete(4),
+    }, 
+    "agent-2":{
+        "observation": BridgeSpaces.MultiDiscrete([4]),
+        "action": BridgeSpaces.Discrete(4),
+    }
+}
+
+env = MultiAgentBridgeEnv(
+    name = "multiagent-arena",
+    ip = 'localhost',
+    port = 10110, 
+    config = env_config
+)
+
+# Actions test 
+action = {
+    'agent-1': np.array([2]),
+    'agent-2': np.array([1])
+}
+
+env.step(action)
+
+
+
+
