@@ -4,11 +4,11 @@ from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 def get_env(_ip = 'localhost', _port=10010):
     env_config  = {
         "agent-1":{
-            "observation": BridgeSpaces.MultiDiscrete([4]),
+            "observation": BridgeSpaces.MultiDiscrete([64], [64]),
             "action": BridgeSpaces.Discrete(4),
         }, 
         "agent-2":{
-            "observation": BridgeSpaces.MultiDiscrete([4]),
+            "observation": BridgeSpaces.MultiDiscrete([64], [64]),
             "action": BridgeSpaces.Discrete(4),
         }
     }
