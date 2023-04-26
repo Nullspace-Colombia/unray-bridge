@@ -454,7 +454,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
             # update each dictionary from major data 
-            obs_dict[current_agent_name] = int(obs)
+            obs_dict[current_agent_name] = np.array(obs, dtype= np.int16)
             reward_dict[current_agent_name] = reward
             done_dict[current_agent_name] = bool(done)
             truncated_dict[current_agent_name] = False
