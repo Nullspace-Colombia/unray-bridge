@@ -28,7 +28,9 @@
 """
 from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
+from unray_bridge import gui 
 from gymnasium import Env as gymEnv
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 import gymnasium.spaces as spaces
 import numpy as np
@@ -255,7 +257,7 @@ class BridgeEnv(gymEnv):
         """
         self.handler.close()
     
-class MultiAgentBridgeEnv(BridgeEnv):
+class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
     """
         MultiAgentBridgeEnv
     """
@@ -266,8 +268,13 @@ class MultiAgentBridgeEnv(BridgeEnv):
                  config: dict, 
                  first_connection = False, 
                  validation = False, 
-                 multiagent = False):
+                 multiagent = False,
+                 show_gui = True):
         
+        # gui 
+        if show_gui:
+            gui.print_title()
+
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         
@@ -286,9 +293,11 @@ class MultiAgentBridgeEnv(BridgeEnv):
             self.observations[agent_name] = config[agent_name]["observation"]
             self.actions[agent_name] = config[agent_name]["action"]
 
-        print("Agent names: {}".format(self.agent_names))
-        print("Observations: {}".format(self.observations))
-        print("Actions: {}".format(self.actions))
+        print("Multiagent params --")
+        print(" - Agent names: {}".format(self.agent_names))
+        print(" - Observations: {}".format(self.observations))
+        print(" - Actions: {}".format(self.actions))
+        print(" ")
 
         self.has_handler = False # ClientHandler to begin with connection
         self.has_connection = False
@@ -296,23 +305,29 @@ class MultiAgentBridgeEnv(BridgeEnv):
         self.validation = validation
         self.multiagent = multiagent 
 
-        self.obs = [0]
+        # Rllib metadata
+        self.observation_space = self.observations['agent-1']
+        self.action_space = self.actions['agent-1']
 
-        # if first_connection:
-        #     self.handler = ClientHandler(self.ip, self.port)
+
+        self.obs = [0]
 
         self.create_handler()
 
     def get_amount_agents(self) -> int: 
         """
-            returns de amount of agents in the multiagent env 
+            Get Amount Agents
+            ---
+            Returns de amount of agents in the multiagent environment.
+
+            @returns amount of agent names (int)
         """
         return len(self.agent_names)
 
     def validate_actions_dict(self, actions: dict) -> bool:
         """
         Validate Actions Dict
-
+        ---
         Args:
             actions (dict): [description]
 
@@ -322,15 +337,27 @@ class MultiAgentBridgeEnv(BridgeEnv):
         return len(actions) == self.get_amount_agents() 
     
     def to_byte(self, byte):
+        """
+            To byte
+            ---
+            Convert byte to bits for buffer sned 
+        """
         return 8 * byte
 
 
     def get_dict_template(self):
+        """
+            get dict template 
+            ---
+            Get an agent-name dictionary for using as structure to 
+            send to RLLib.
+        """
         agent_dict_template = {}
         for agent in self.agent_names:
             agent_dict_template[agent] = ""
 
         return agent_dict_template
+        
         
     def step(self, actions: dict) -> None:
         """
@@ -340,7 +367,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
             - action (dict): 
         
         """
-        print("Validating actions!")
+        
         if not self.validate_actions_dict(actions):
             
             raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
@@ -373,7 +400,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         
         print('[ACTION]', end=" ")
         print(action)
-        print("obs: ", self.observations)
+        
 
         total_obs_size = 0 # sizes 
         total_obs = []
@@ -414,6 +441,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         
         acum = 0
         all_done = True
+
         for idx, n in enumerate(total_obs):
             # extract agent parameters for episode 
             obs = state[acum:acum + n]
@@ -423,7 +451,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
             current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
             # update each dictionary from major data 
-            obs_dict[current_agent_name] = np.array(obs)
+            obs_dict[current_agent_name] = obs
             reward_dict[current_agent_name] = reward
             done_dict[current_agent_name] = done 
 
@@ -431,11 +459,19 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
             acum += n
 
+        # New structure design
+        # accum = 0
+        # for idx, agent in enumerate(self.agent_names):
+        #     id = state[idx]
+        #     obs = state[:]
+        #     reward[state[]]
+
         done_dict["__all__"] = all_done 
 
         # create dictionary 
         
-        self.obs = obs 
+        self.obs = obs_dict
+        
     
         # 4. Rewards System
         # For each frame within the termination limits, 
@@ -457,6 +493,14 @@ class MultiAgentBridgeEnv(BridgeEnv):
         info = {}
 
         return obs_dict, reward_dict, done_dict, truncated, info
+    
+
+    def reset(self, *, seed=None, options=None):
+        print('[OBS]:', self.obs)
+        obs_dict = self.get_dict_template() # from agents names 
+        for agent in obs_dict:
+            obs_dict[agent] = np.array([0, 0])
+        return obs_dict, {}
 
 
 
