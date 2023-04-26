@@ -124,6 +124,9 @@ obs = {
 
 However, as the BridgeConnection is over a TCP / IP protocol, the socket only sends bytesbuffers. In each `step` convert the dict actions given by **ray** into a buffer. For the **MultiAgentsArena** case, the action space is a `BridgeSpaces.Dicrete([4])`, for which each agent will send a single scalar.
 
+<p align="center">
+ <img width="60%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/nagent.png" /> 
+</p>
 
 
 
