@@ -99,7 +99,15 @@ env = MultiAgentBridgeEnv(
 )
 ```
 
+## Under the hood
+Inside the framework the data flows between three nodes. UE5 Environment, MultiAgentBridgeEnv and RLlib. 
+
+
+From 
+
+
 ### UE5 Environment
+
 
 
 
