@@ -1,12 +1,17 @@
-# unray-bridge
+# Unray Bridge
 
 Framework for communication between Unreal Engine and Python
 
 ## Getting Started
-
-
+Clone the repo and install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
+```terminal
+ git clone https://github.com/mora200217/unray-bridge.git && cd unray-bridge 
+ pip install -r requirements.txt
+```
+> We recommend conda for creating a virtualenv and installing the dependendencies
 
 ## Single Agent
+[In dev process]
 
 ## Multiagent 
 In order to define a custom environment, you have to create an action and observation dictionary. This is called a *env_config* dict. 
@@ -125,6 +130,10 @@ However, as the BridgeConnection is over a TCP / IP protocol, the socket only se
 
 
 ### UE5 Environment
+
+<p align="center">
+  <img width="70%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/ue5-scene.png" /> 
+</p> 
 
 
 
