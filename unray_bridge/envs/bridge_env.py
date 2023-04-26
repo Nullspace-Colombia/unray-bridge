@@ -445,9 +445,11 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         for idx, n in enumerate(total_obs):
             # extract agent parameters for episode 
-            obs = state[acum:acum + n]
-            reward = state[-(self.get_amount_agents() - idx)]
-            done = state[-(2 * self.get_amount_agents() - idx)]
+            skip = 3 + sum(total_obs[:idx+ 1])
+            id = state[idx * skip]
+            obs = state[1 + idx * skip: 1 + idx * skip + total_obs[idx]]
+            reward = state[2 + idx * skip + total_obs[idx]]
+            done = state[3 + idx * skip + total_obs[idx]]
             
             current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
