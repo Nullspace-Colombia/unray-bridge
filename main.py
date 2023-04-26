@@ -37,12 +37,15 @@ env = MultiAgentBridgeEnv(
 # Actions test 
 action = {
     'agent-1': np.array([1]),
-    'agent-2': np.array([3])
+    'agent-2': np.array([-1])
 }
 
 
 if __name__ == "__main__":
-    env.step(action)
+    for i in range(15):
+        print(f"--------------------Episode {i}----------------------")
+        env.step(action)
+        print("------------------------------------------")
 
 
 
