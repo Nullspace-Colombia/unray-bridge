@@ -380,17 +380,17 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
         for idx, observation in enumerate(self.observations):
             observation_space = self.observations[observation] # discrete space 
-            print(f"Observation {idx}: {observation_space.shape[0]}" )
-            print(f"type: {type(observation_space)}")
+            # print(f"Observation {idx}: {observation_space.shape[0]}" )
+            # print(f"type: {type(observation_space)}")
 
             total_obs_size += observation_space.shape[0]
             total_obs.append(observation_space.shape[0])
 
-        print("observaciones totales: ", total_obs_size)
-        print("agentes: ", self.get_amount_agents())
+        # print("observaciones totales: ", total_obs_size)
+        # print("agentes: ", self.get_amount_agents())
 
-        print("dictionary: ")
-        print(self.get_dict_template())
+        # print("dictionary: ")
+        # print(self.get_dict_template())
 
         # 2. Cast the action vector to a byte buffer for send.
         action_buff = action.tobytes()
@@ -405,7 +405,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         # calculate the size get the type of size 
         
         state = self.handler.recv(data_size) # Get state vetor 
-        print(f"[STATE FROM UE] {state}")
+        # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 
         reward_dict = self.get_dict_template() # from agents names 
