@@ -463,7 +463,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
             acum += n
 
-        done_dict["__all__"] = all_done 
+        done_dict["__all__"] = bool(all_done )
         truncated_dict["__all__"] = False 
 
         # create dictionary 
