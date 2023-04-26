@@ -30,19 +30,22 @@ env_config  = {
 env = MultiAgentBridgeEnv(
     name = "multiagent-arena",
     ip = 'localhost',
-    port = 10110, 
+    port = 10010, 
     config = env_config
 )
 
 # Actions test 
 action = {
-    'agent-1': np.array([2]),
-    'agent-2': np.array([1])
+    'agent-1': np.array([1]),
+    'agent-2': np.array([-1])
 }
 
 
 if __name__ == "__main__":
-    env.step(action)
+    for i in range(15):
+        print(f"--------------------Episode {i}----------------------")
+        env.step(action)
+        print("------------------------------------------")
 
 
 
