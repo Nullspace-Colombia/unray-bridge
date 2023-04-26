@@ -437,6 +437,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         obs_dict = self.get_dict_template() # from agents names 
         reward_dict = self.get_dict_template() # from agents names 
         done_dict = self.get_dict_template() # from agents names 
+        truncated_dict = self.get_dict_template() # from agents names 
 
         
         acum = 0
@@ -454,6 +455,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             obs_dict[current_agent_name] = obs
             reward_dict[current_agent_name] = reward
             done_dict[current_agent_name] = done 
+            truncated_dict[current_agent_name] = False
 
             all_done = all_done and done 
 
@@ -492,7 +494,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         truncated = False
         info = {}
 
-        return obs_dict, reward_dict, done_dict, truncated, info
+        return obs_dict, reward_dict, done_dict, truncated_dict, info
     
 
     def reset(self, *, seed=None, options=None):
