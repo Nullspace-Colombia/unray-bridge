@@ -104,10 +104,24 @@ Inside the framework the data flows between three nodes. UE5 Environment, MultiA
 
 <p align="center">
 <img width="50%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/dataflow.png" /> 
+</p>
 
-</p> 
+The JSON action / observation is given as a dictionary with the agent-names as the keys. 
 
-From 
+```python
+obs = {
+  'agent-1': <Obserbation>,
+  'agent-2': <Obserbation>,
+  ...
+  'agent-n': <Obserbation>,
+}
+```
+
+However, as the BridgeConnection is over a TCP / IP protocol, the socket only sends bytesbuffers. In each `step` convert the dict actions given by **ray** into a buffer. For the **MultiAgentsArena** case, the action space is a `BridgeSpaces.Dicrete([4])`, for which each agent will send a single scalar.
+
+
+
+
 
 
 ### UE5 Environment
