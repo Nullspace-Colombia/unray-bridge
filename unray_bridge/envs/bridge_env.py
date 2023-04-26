@@ -28,6 +28,7 @@
 """
 from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
+from unray_bridge import gui 
 from gymnasium import Env as gymEnv
 
 import gymnasium.spaces as spaces
@@ -266,8 +267,13 @@ class MultiAgentBridgeEnv(BridgeEnv):
                  config: dict, 
                  first_connection = False, 
                  validation = False, 
-                 multiagent = False):
+                 multiagent = False,
+                 show_gui = True):
         
+        # gui 
+        if show_gui:
+            gui.print_title()
+
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         
@@ -286,9 +292,11 @@ class MultiAgentBridgeEnv(BridgeEnv):
             self.observations[agent_name] = config[agent_name]["observation"]
             self.actions[agent_name] = config[agent_name]["action"]
 
-        print("Agent names: {}".format(self.agent_names))
-        print("Observations: {}".format(self.observations))
-        print("Actions: {}".format(self.actions))
+        print("Multiagent params --")
+        print(" - Agent names: {}".format(self.agent_names))
+        print(" - Observations: {}".format(self.observations))
+        print(" - Actions: {}".format(self.actions))
+        print(" ")
 
         self.has_handler = False # ClientHandler to begin with connection
         self.has_connection = False
@@ -298,21 +306,22 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
         self.obs = [0]
 
-        # if first_connection:
-        #     self.handler = ClientHandler(self.ip, self.port)
-
         self.create_handler()
 
     def get_amount_agents(self) -> int: 
         """
-            returns de amount of agents in the multiagent env 
+            Get Amount Agents
+            ---
+            Returns de amount of agents in the multiagent environment.
+
+            @returns amount of agent names (int)
         """
         return len(self.agent_names)
 
     def validate_actions_dict(self, actions: dict) -> bool:
         """
         Validate Actions Dict
-
+        ---
         Args:
             actions (dict): [description]
 
@@ -322,10 +331,21 @@ class MultiAgentBridgeEnv(BridgeEnv):
         return len(actions) == self.get_amount_agents() 
     
     def to_byte(self, byte):
+        """
+            To byte
+            ---
+            Convert byte to bits for buffer sned 
+        """
         return 8 * byte
 
 
     def get_dict_template(self):
+        """
+            get dict template 
+            ---
+            Get an agent-name dictionary for using as structure to 
+            send to RLLib.
+        """
         agent_dict_template = {}
         for agent in self.agent_names:
             agent_dict_template[agent] = ""
@@ -340,7 +360,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
             - action (dict): 
         
         """
-        print("Validating actions!")
+        
         if not self.validate_actions_dict(actions):
             
             raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
@@ -373,7 +393,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         
         print('[ACTION]', end=" ")
         print(action)
-        print("obs: ", self.observations)
+        
 
         total_obs_size = 0 # sizes 
         total_obs = []

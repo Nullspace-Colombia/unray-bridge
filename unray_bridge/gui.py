@@ -1,5 +1,5 @@
 
-
+import os, platform
 
 def print_title(): 
     """
@@ -7,6 +7,14 @@ def print_title():
 
         print a splash screen for 
     """
+    clear_command = {
+        "Darwin": "clear", 
+        "Windows": "cls"
+    }
+    os.system(clear_command[platform.system()])
+    
+    print()
+    print("                                         ")
     print("            _    _                       ")
     print("           | |  | |                      ")
     print("           | |  | |_ __  _ __ __ _ _   _ ")
