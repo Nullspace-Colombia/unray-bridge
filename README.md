@@ -102,6 +102,10 @@ env = MultiAgentBridgeEnv(
 ## Under the hood
 Inside the framework the data flows between three nodes. UE5 Environment, MultiAgentBridgeEnv and RLlib. 
 
+<p align="center">
+<img width="50%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/dataflow.png" /> 
+
+</p> 
 
 From 
 
