@@ -461,40 +461,24 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
             acum += n
 
-        # New structure design
-        # accum = 0
-        # for idx, agent in enumerate(self.agent_names):
-        #     id = state[idx]
-        #     obs = state[:]
-        #     reward[state[]]
-
         done_dict["__all__"] = all_done 
         truncated_dict["__all__"] = False 
 
         # create dictionary 
         
         self.obs = obs_dict
-        
-    
-        # 4. Rewards System
-        # For each frame within the termination limits, 
-        ##reward = self.counter
-        
-        # reward = state[n]
-        # terminated = bool(state[n+1])
 
-        
-
-        # 4. Rewards System
-        # For each frame within the termination limits, 
-        # self.counter += 1
-        # reward = self.counter
-        #reward = 0
-
-        # Additional metadata [ignore ]
-        truncated = False
         info = {}
 
+        print(" Dicts ")
+        print("-obs: ")
+        print(obs_dict, end = "\n \n")
+        print("-reward: ")
+        print(reward_dict, end = "\n \n")
+        print("-done: ")
+        print(done_dict, end = "\n \n")
+        print("-truncated: ")
+        print(truncated_dict, end = "\n \n")
         return obs_dict, reward_dict, done_dict, truncated_dict, info
     
 
