@@ -456,7 +456,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             # update each dictionary from major data 
             obs_dict[current_agent_name] = obs
             reward_dict[current_agent_name] = reward
-            done_dict[current_agent_name] = done 
+            done_dict[current_agent_name] = bool(done)
             truncated_dict[current_agent_name] = False
 
             all_done = all_done and done 
