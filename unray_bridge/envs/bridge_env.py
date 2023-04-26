@@ -321,8 +321,18 @@ class MultiAgentBridgeEnv(BridgeEnv):
         """
         return len(actions) == self.get_amount_agents() 
     
+    def to_byte(self, byte):
+        return 8 * byte
 
-    def step(self, actions: dict):
+
+    def get_dict_template(self):
+        agent_dict_template = {}
+        for agent in self.agent_names:
+            agent_dict_template[agent] = ""
+
+        return agent_dict_template
+        
+    def step(self, actions: dict) -> None:
         """
         Step 
         ---
@@ -330,7 +340,9 @@ class MultiAgentBridgeEnv(BridgeEnv):
             - action (dict): 
         
         """
+        print("Validating actions!")
         if not self.validate_actions_dict(actions):
+            
             raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
 
         if not self.has_connection:
@@ -340,9 +352,10 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
         # create format 
         action2send = []
-        for action in self.actions:
-            action2send.append(self.actions[action])
+        for action in actions:
+            action2send.append(actions[action])
             
+        print(action2send) 
 
         action=np.array(action2send,dtype=np.single)
 
@@ -360,24 +373,76 @@ class MultiAgentBridgeEnv(BridgeEnv):
         
         print('[ACTION]', end=" ")
         print(action)
+        print("obs: ", self.observations)
+
+        total_obs_size = 0 # sizes 
+        total_obs = []
+
+        for idx, observation in enumerate(self.observations):
+            observation_space = self.observations[observation] # discrete space 
+            print(f"Observation {idx}: {observation_space.shape[0]}" )
+            print(f"type: {type(observation_space)}")
+
+            total_obs_size += observation_space.shape[0]
+            total_obs.append(observation_space.shape[0])
+
+        print("observaciones totales: ", total_obs_size)
+        print("agentes: ", self.get_amount_agents())
+
+        print("dictionary: ")
+        print(self.get_dict_template())
 
         # 2. Cast the action vector to a byte buffer for send.
         action_buff = action.tobytes()
-        n = self.get_amount_obs()
+        # n = self.get_amount_obs()
         # 3. Send the action vector to the environment. 
         self.handler.send(action_buff) # Send action an wait response 
-        data_size = 8*(n+2)
+        
 
+        # estructura:    (obs) * agente + (done + reward) * agente
+        data_size = self.to_byte(total_obs_size + self.get_amount_agents() * 2) # bytes from read 
+        
+        # calculate the size get the type of size 
+        
         state = self.handler.recv(data_size) # Get state vetor 
-        obs = state[0:n]
+        print(f"[STATE FROM UE] {state}")
+                                
+        obs_dict = self.get_dict_template() # from agents names 
+        reward_dict = self.get_dict_template() # from agents names 
+        done_dict = self.get_dict_template() # from agents names 
+
+        
+        acum = 0
+        all_done = True
+        for idx, n in enumerate(total_obs):
+            # extract agent parameters for episode 
+            obs = state[acum:acum + n]
+            reward = state[-(self.get_amount_agents() - idx)]
+            done = state[-(2 * self.get_amount_agents() - idx)]
+            
+            current_agent_name = self.agent_names[idx] # agent name from dicitonary 
+
+            # update each dictionary from major data 
+            obs_dict[current_agent_name] = np.array(obs)
+            reward_dict[current_agent_name] = reward
+            done_dict[current_agent_name] = done 
+
+            all_done = all_done and done 
+
+            acum += n
+
+        done_dict["__all__"] = all_done 
+
+        # create dictionary 
+        
         self.obs = obs 
     
         # 4. Rewards System
         # For each frame within the termination limits, 
         ##reward = self.counter
         
-        reward = state[n]
-        terminated = bool(state[n+1])
+        # reward = state[n]
+        # terminated = bool(state[n+1])
 
         
 
@@ -391,7 +456,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         truncated = False
         info = {}
 
-        return obs, reward, terminated, truncated, info
+        return obs_dict, reward_dict, done_dict, truncated, info
 
 
 

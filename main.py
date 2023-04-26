@@ -38,11 +38,11 @@ from unray_bridge.envs.spaces import BridgeSpaces
 
 env_config  = {
     "agent-1":{
-        "observation": BridgeSpaces.MultiDiscrete([4]),
+        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
         "action": BridgeSpaces.Discrete(4),
     }, 
     "agent-2":{
-        "observation": BridgeSpaces.MultiDiscrete([4]),
+        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
         "action": BridgeSpaces.Discrete(4),
     }
 }
