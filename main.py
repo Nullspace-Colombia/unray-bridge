@@ -10,30 +10,10 @@ from tests.single_agents import single_agents
 from tests.multiagents import multiagents
 from argparse import ArgumentParser
 from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
+from unray_bridge.envs.spaces import BridgeSpaces
 
 import numpy as np
-# Constants 
-# _OPTION = "multiagents"
 
-# # Parser 
-# parser = ArgumentParser()
-
-# parser.add_argument(
-#     "test",
-# )
-
-# if __name__ == "__main__": 
-#     # gui.print_title()
-#     if _OPTION == "single-agents":
-#         print("Single agents | CartPoleV1")
-#         single_agents()
-#     elif _OPTION == "multiagents": 
-#         multiagents()
-#     else: 
-#         print("only options are ['single-agents', 'multiagents']")
-#         print("*please select a valid option from the list above")  
-#         print("")
-from unray_bridge.envs.spaces import BridgeSpaces
 
 
 env_config  = {
@@ -60,7 +40,9 @@ action = {
     'agent-2': np.array([3])
 }
 
-env.step(action)
+
+if __name__ == "__main__":
+    env.step(action)
 
 
 

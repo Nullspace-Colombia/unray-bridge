@@ -399,8 +399,8 @@ class MultiAgentBridgeEnv(BridgeEnv):
         self.handler.send(action_buff) # Send action an wait response 
         
 
-        # estructura:    (obs) * agente + (done + reward) * agente
-        data_size = self.to_byte(total_obs_size + self.get_amount_agents() * 2) # bytes from read 
+        # estructura:   (id + obs + reward + done) * agente 
+        data_size = self.to_byte(total_obs_size + self.get_amount_agents() * 3) # bytes from read 
         
         # calculate the size get the type of size 
         
