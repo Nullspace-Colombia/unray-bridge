@@ -30,6 +30,7 @@ from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
 from unray_bridge import gui 
 from gymnasium import Env as gymEnv
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 import gymnasium.spaces as spaces
 import numpy as np
@@ -256,7 +257,7 @@ class BridgeEnv(gymEnv):
         """
         self.handler.close()
     
-class MultiAgentBridgeEnv(BridgeEnv):
+class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
     """
         MultiAgentBridgeEnv
     """
@@ -303,6 +304,11 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
         self.validation = validation
         self.multiagent = multiagent 
+
+        # Rllib metadata
+        self.observation_space = self.observations['agent-1']
+        self.action_space = self.actions['agent-1']
+
 
         self.obs = [0]
 
@@ -351,6 +357,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
             agent_dict_template[agent] = ""
 
         return agent_dict_template
+        
         
     def step(self, actions: dict) -> None:
         """
@@ -444,7 +451,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
             current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
             # update each dictionary from major data 
-            obs_dict[current_agent_name] = np.array(obs)
+            obs_dict[current_agent_name] = obs
             reward_dict[current_agent_name] = reward
             done_dict[current_agent_name] = done 
 
@@ -463,7 +470,8 @@ class MultiAgentBridgeEnv(BridgeEnv):
 
         # create dictionary 
         
-        self.obs = obs 
+        self.obs = obs_dict
+        
     
         # 4. Rewards System
         # For each frame within the termination limits, 
@@ -485,6 +493,14 @@ class MultiAgentBridgeEnv(BridgeEnv):
         info = {}
 
         return obs_dict, reward_dict, done_dict, truncated, info
+    
+
+    def reset(self, *, seed=None, options=None):
+        print('[OBS]:', self.obs)
+        obs_dict = self.get_dict_template() # from agents names 
+        for agent in obs_dict:
+            obs_dict[agent] = np.array([0, 0])
+        return obs_dict, {}
 
 
 
