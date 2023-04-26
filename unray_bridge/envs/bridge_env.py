@@ -434,6 +434,7 @@ class MultiAgentBridgeEnv(BridgeEnv):
         
         acum = 0
         all_done = True
+
         for idx, n in enumerate(total_obs):
             # extract agent parameters for episode 
             obs = state[acum:acum + n]
@@ -450,6 +451,13 @@ class MultiAgentBridgeEnv(BridgeEnv):
             all_done = all_done and done 
 
             acum += n
+
+        # New structure design
+        # accum = 0
+        # for idx, agent in enumerate(self.agent_names):
+        #     id = state[idx]
+        #     obs = state[:]
+        #     reward[state[]]
 
         done_dict["__all__"] = all_done 
 
