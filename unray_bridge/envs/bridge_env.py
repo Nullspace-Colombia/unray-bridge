@@ -469,7 +469,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         #     reward[state[]]
 
         done_dict["__all__"] = all_done 
-        done_dict["__all__"] = False 
+        truncated_dict["__all__"] = False 
 
         # create dictionary 
         
