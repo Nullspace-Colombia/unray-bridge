@@ -2,7 +2,6 @@
 import argparse
 
 from ray.rllib.env.policy_client import PolicyClient
-from ray.rllib.env.wrappers.unity3d_env import Unity3DEnv
 
 from unray_bridge.envs.envs import MultiAgentArena
 
@@ -15,8 +14,7 @@ parser.add_argument(
     "--game",
     type=str,
     default=None,
-    help="The game executable to run as RL env. If not provided, uses local "
-    "Unity3D editor instance.",
+    help="The game executable to run as RL env. If not provided, uses local ",
 )
 parser.add_argument(
     "--horizon",
@@ -72,7 +70,7 @@ if __name__ == "__main__":
     )
 
     
-    env = MultiAgentArena.get_env(instance=True) # Unity3DEnv(file_name=args.game, episode_horizon=args.horizon)
+    env = MultiAgentArena.get_env(instance=True) 
     obs, info = env.reset()
     eid = client.start_episode(training_enabled=not args.no_train)
 
