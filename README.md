@@ -10,6 +10,7 @@ Clone the repo and install the given dependencies. This is just the python-side 
 ```
 > We recommend conda for creating a virtualenv and installing the dependendencies
 
+# RL Environment for simple training
 ## Single Agent
 [In dev process]
 
@@ -139,29 +140,5 @@ However, as the BridgeConnection is over a TCP / IP protocol, the socket only se
 </p> 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# RL Environment for parallel training 
+Central policy server is implemented
