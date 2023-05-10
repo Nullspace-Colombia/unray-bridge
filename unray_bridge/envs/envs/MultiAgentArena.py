@@ -7,10 +7,20 @@ def get_env(_ip = 'localhost', _port=10010, instance = False):
         "agent-1":{
             "observation": BridgeSpaces.MultiDiscrete([64, 64]),
             "action": BridgeSpaces.Discrete(4),
+            "can_see": 2,                        
+            "obs_order": {   
+                "agent-1": [0], 
+                "agent-2": [0]
+            }
         }, 
         "agent-2":{
             "observation": BridgeSpaces.MultiDiscrete([64, 64]),
             "action": BridgeSpaces.Discrete(4),
+            "can_see": 2,
+            "obs_order": {
+                "agent-2": [0], 
+                "agent-1": [0]
+            }
         }
     }
 

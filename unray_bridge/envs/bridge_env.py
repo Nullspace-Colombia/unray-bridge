@@ -287,16 +287,24 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.agent_names = [] # get all agents names 
         self.observations = {}
         self.actions = {}
+        self.can_sees = {}
+        self.obs_order = {}
+
 
         for agent_name in config:
             self.agent_names.append(agent_name)
             self.observations[agent_name] = config[agent_name]["observation"]
             self.actions[agent_name] = config[agent_name]["action"]
+            self.can_sees[agent_name] = config[agent_name]["can_see"]
+            self.obs_order[agent_name] = config[agent_name]["obs_order"]
 
         print("Multiagent params --")
         print(" - Agent names: {}".format(self.agent_names))
         print(" - Observations: {}".format(self.observations))
         print(" - Actions: {}".format(self.actions))
+        print(" - Can see: {}".format(self.can_sees))
+        print(" - Observation order: {}".format(self.obs_order))
+
         print(" ")
 
         self.has_handler = False # ClientHandler to begin with connection
@@ -404,14 +412,24 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         total_obs_size = 0 # sizes 
         total_obs = []
+        can_sees_total = []
+        order_observations = []
 
-        for idx, observation in enumerate(self.observations):
-            observation_space = self.observations[observation] # discrete space 
+        for idx, observation in enumerate(self.observations): 
+            observation_space = self.observations[observation] # discrete space  for each agent 
             # print(f"Observation {idx}: {observation_space.shape[0]}" )
             # print(f"type: {type(observation_space)}")
 
             total_obs_size += observation_space.shape[0]
-            total_obs.append(observation_space.shape[0])
+            total_obs.append(observation_space.shape[0]) # total space for observations 
+            can_sees_total.append(self.can_sees[observation]) # arreglo de cansees 
+            order_observations.append([e for e in self.obs_order[observation]])
+
+        print(can_sees_total)
+        print(order_observations)
+
+             
+            
 
         # print("observaciones totales: ", total_obs_size)
         # print("agentes: ", self.get_amount_agents())
@@ -443,13 +461,21 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         acum = 0
         all_done = True
 
+
+        # Read the specific observations vector 
+        # 
+        #  id = 1 
+        #  obs = total_obs[idx]
+
+
         for idx, n in enumerate(total_obs):
             # extract agent parameters for episode 
             skip = 3 + sum(total_obs[:idx])
             id = state[idx * skip]
-            obs = state[1 + idx * skip: 1 + idx * skip + total_obs[idx]]
-            reward = state[1 + idx * skip + total_obs[idx]]
-            done = state[2 + idx * skip + total_obs[idx]]
+            # obs = [state[1 + idx * skip: 1 + idx * skip + 1 ], state[1 + (idx + 1) * skip: 1 + idx * skip + 1 ]]#total_obs[idx]] # aqui es donde no cuadra
+            obs = [2, 6] 
+            reward = state[1 + idx * skip + 1 ]# total_obs[idx]]
+            done = state[2 + idx * skip + 1] #  total_obs[idx]]
             
             current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
