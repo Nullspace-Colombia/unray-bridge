@@ -557,6 +557,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             ---
 
         """
+        print('[RESETTING]')
         print('[OBS]:', self.obs)
         obs_dict = self.get_dict_template() # from agents names 
         for agent in obs_dict:
