@@ -498,36 +498,37 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             obs_dict_arr = []
             for observation_check_agent in list(self.config[agent]['obs_order']):
                 for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
-                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")
-
-
-
-
+                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
+                    obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
             
+            obs_dict[agent] = obs_dict_arr # Add all states needed for agent 
+            reward_dict[agent] = state[self.config[agent]['can_show'] + 1] 
+            done_dict[agent] =  bool(state[self.config[agent]['can_show'] + 2])
+            truncated_dict[agent] = False 
+
+            all_done = all_done and done_dict[agent]
             
 
+        # for idx, n in enumerate(total_obs):
+        #     # extract agent parameters for episode 
+        #     skip = 3 + sum(total_obs[:idx])
+        #     id = state[idx * skip]
+        #     # obs = [state[1 + idx * skip: 1 + idx * skip + 1 ], state[1 + (idx + 1) * skip: 1 + idx * skip + 1 ]]#total_obs[idx]] # aqui es donde no cuadra
+        #     obs = [2, 6] 
+        #     reward = state[1 + idx * skip + 1 ]# total_obs[idx]]
+        #     done = state[2 + idx * skip + 1] #  total_obs[idx]]
             
+        #     current_agent_name = self.agent_names[idx] # agent name from dicitonary 
 
-        for idx, n in enumerate(total_obs):
-            # extract agent parameters for episode 
-            skip = 3 + sum(total_obs[:idx])
-            id = state[idx * skip]
-            # obs = [state[1 + idx * skip: 1 + idx * skip + 1 ], state[1 + (idx + 1) * skip: 1 + idx * skip + 1 ]]#total_obs[idx]] # aqui es donde no cuadra
-            obs = [2, 6] 
-            reward = state[1 + idx * skip + 1 ]# total_obs[idx]]
-            done = state[2 + idx * skip + 1] #  total_obs[idx]]
-            
-            current_agent_name = self.agent_names[idx] # agent name from dicitonary 
+        #     # update each dictionary from major data 
+        #     obs_dict[current_agent_name] = np.array(obs, dtype= np.int16)
+        #     reward_dict[current_agent_name] = reward
+        #     done_dict[current_agent_name] = bool(done)
+        #     truncated_dict[current_agent_name] = False
 
-            # update each dictionary from major data 
-            obs_dict[current_agent_name] = np.array(obs, dtype= np.int16)
-            reward_dict[current_agent_name] = reward
-            done_dict[current_agent_name] = bool(done)
-            truncated_dict[current_agent_name] = False
+        #     all_done = all_done and done 
 
-            all_done = all_done and done 
-
-            acum += n
+        #     acum += n
 
         done_dict["__all__"] = bool(all_done )
         truncated_dict["__all__"] = False 
