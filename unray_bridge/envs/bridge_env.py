@@ -561,6 +561,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         obs_dict = self.get_dict_template() # from agents names 
         for agent in obs_dict:
             obs_dict[agent] = np.array([0, 0])
+        print("- Obs_dict: ")
+        print(obs_dict)
         return obs_dict, {}
 
 
