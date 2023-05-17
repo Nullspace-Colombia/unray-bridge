@@ -503,7 +503,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
             obs_dict[agent] = obs_dict_arr # Add all states needed for agent 
             reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1] 
-            done_dict[agent] =  bool(self.heads_reference[agent] + state[self.config[agent]['can_show'] + 2])
+            done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 2])
             truncated_dict[agent] = False 
 
             all_done = all_done and done_dict[agent]
