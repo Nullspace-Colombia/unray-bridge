@@ -268,7 +268,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  config: dict, 
                  first_connection = False, 
                  validation = False, 
-                 multiagent = False,
+                 multiagent = False, 
                  show_gui = True):
         
         # gui 
@@ -291,19 +291,23 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.obs_order = {}
 
 
-        for agent_name in config:
-            self.agent_names.append(agent_name)
-            self.observations[agent_name] = config[agent_name]["observation"]
-            self.actions[agent_name] = config[agent_name]["action"]
-            self.can_sees[agent_name] = config[agent_name]["can_see"]
-            self.obs_order[agent_name] = config[agent_name]["obs_order"]
+        # for agent_name in config:
+        #     self.agent_names.append(agent_name)
+        #     self.observations[agent_name] = config[agent_name]["observation"]
+        #     self.actions[agent_name] = config[agent_name]["action"]
+        #     self.can_sees[agent_name] = config[agent_name]["can_see"]
+        #     self.obs_order[agent_name] = config[agent_name]["obs_order"]
 
-        print("Multiagent params --")
-        print(" - Agent names: {}".format(self.agent_names))
-        print(" - Observations: {}".format(self.observations))
-        print(" - Actions: {}".format(self.actions))
-        print(" - Can see: {}".format(self.can_sees))
-        print(" - Observation order: {}".format(self.obs_order))
+        
+        self.agents_names = list(config.keys())
+        print(f"Agents: {self.agents_names}")
+
+        # print("Multiagent params --")
+        # print(" - Agent names: {}".format(self.agent_names))
+        # print(" - Observations: {}".format(self.observations))
+        # print(" - Actions: {}".format(self.actions))
+        # print(" - Can see: {}".format(self.can_sees))
+        # print(" - Observation order: {}".format(self.obs_order))
 
         print(" ")
 
@@ -314,8 +318,19 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.multiagent = multiagent 
 
         # Rllib metadata
-        self.observation_space = self.observations['agent-1']
-        self.action_space = self.actions['agent-1']
+        self.observation_space = config[self.agents_names[0]]['observation']
+        self.action_space = config[self.agents_names[0]]['action']
+
+        self.config = config # configuracion de entorno
+        self.heads_reference = self.get_dict_template() # where the state vector begins 
+
+        for idx, agent in enumerate(self.agents_names):
+            print(self.config[agent])
+            self.heads_reference[agent] = 1 if idx == 0 else self.heads_reference[prev_agent] + 3 + self.config[agent]['can_show']
+            prev_agent = agent
+
+        print("Heads reference: ", end = "") 
+        print(self.heads_reference)
 
 
         self.obs = [0]
@@ -330,7 +345,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
             @returns amount of agent names (int)
         """
-        return len(self.agent_names)
+        return len(self.agents_names)
 
     def validate_actions_dict(self, actions: dict) -> bool:
         """
@@ -412,23 +427,30 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         total_obs_size = 0 # sizes 
         total_obs = []
+        agents = self.observations.keys() # agents names
+        print("agents:", end = " ") 
+        print(agents) 
+
         can_sees_total = []
         order_observations = []
 
-        for idx, observation in enumerate(self.observations): 
-            observation_space = self.observations[observation] # discrete space  for each agent 
-            # print(f"Observation {idx}: {observation_space.shape[0]}" )
-            # print(f"type: {type(observation_space)}")
+        # for idx, observation in enumerate(self.observations): 
+        #     observation_space = self.observations[observation] # discrete space  for each agent 
+        #     # print(f"Observation {idx}: {observation_space.shape[0]}" )
+        #     # print(f"type: {type(observation_space)}")
 
-            total_obs_size += observation_space.shape[0]
-            total_obs.append(observation_space.shape[0]) # total space for observations 
-            can_sees_total.append(self.can_sees[observation]) # arreglo de cansees 
-            order_observations.append([e for e in self.obs_order[observation]])
+        #     total_obs_size += observation_space.shape[0]
+        #     total_obs.append(observation_space.shape[0]) # total space for observations 
+        #     can_sees_total.append(self.can_sees[observation]) # arreglo de cansees 
+        #     order_observations.append([e for e in self.obs_order[observation]])
 
-        print(can_sees_total)
-        print(order_observations)
+        # print(can_sees_total)
+        # print(order_observations)
 
              
+        # for idx, agent_name in self.observations.keys(): 
+        #     order_observations = self.observations[agent_name]
+        #     amount_of_observations = self.can_sees[agent_name]
             
 
         # print("observaciones totales: ", total_obs_size)
@@ -443,7 +465,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         # 3. Send the action vector to the environment. 
         self.handler.send(action_buff) # Send action an wait response 
         
-
+    
         # estructura:   (id + obs + reward + done) * agente 
         data_size = self.to_byte(total_obs_size + self.get_amount_agents() * 3) # bytes from read 
         
@@ -467,6 +489,24 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         #  id = 1 
         #  obs = total_obs[idx]
 
+        head = 0
+        heads = []
+        
+
+        for agent in self.agents_names:
+            # amount of observations in the agent 
+            obs_dict_arr = []
+            for observation_check_agent in list(self.config[agent]['obs_order']):
+                for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
+                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")
+
+
+
+
+            
+            
+
+            
 
         for idx, n in enumerate(total_obs):
             # extract agent parameters for episode 
@@ -511,6 +551,11 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
     
 
     def reset(self, *, seed=None, options=None):
+        """
+            Reset
+            ---
+
+        """
         print('[OBS]:', self.obs)
         obs_dict = self.get_dict_template() # from agents names 
         for agent in obs_dict:

@@ -4,6 +4,8 @@ from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
+import numpy as np
+
 if __name__ == '__main__':
     register_env('multiagents-arena', MultiAgentArena.get_env())
 
@@ -14,7 +16,14 @@ if __name__ == '__main__':
     config = config.rollouts(num_rollout_workers=1)
 
     algo = config.build(env = 'multiagents-arena')
-    for i in range(3):
-        result = algo.train()
-        print(f"train {i}")
-    print(result['episode_reward_mean'])
+    # for i in range(3):
+    #     result = algo.train()
+    #     print(f"train {i}")
+    # print(result['episode_reward_mean'])
+
+    action = {
+        'agent-1': np.array([0]),
+        'agent-2': np.array([2])
+    }
+
+    algo.step(action)
