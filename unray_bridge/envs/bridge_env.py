@@ -376,7 +376,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             send to RLLib.
         """
         agent_dict_template = {}
-        for agent in self.agent_names:
+        for agent in self.agents_names:
             agent_dict_template[agent] = ""
 
         return agent_dict_template
