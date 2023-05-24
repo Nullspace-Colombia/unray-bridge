@@ -376,7 +376,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             send to RLLib.
         """
         agent_dict_template = {}
-        for agent in self.agent_names:
+        for agent in self.agents_names:
             agent_dict_template[agent] = ""
 
         return agent_dict_template
@@ -390,11 +390,13 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             - action (dict): 
         
         """
-        
+        print(f"[ACTIONS]:{actions}")
+        print(f"[AGENTS]:{self.agents_names}")
+        """
         if not self.validate_actions_dict(actions):
             
             raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
-
+        """
         if not self.has_connection:
             self.connect()
 
@@ -501,12 +503,17 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                     print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
                     obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
             
-            obs_dict[agent] = obs_dict_arr # Add all states needed for agent 
             reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
             done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
-            truncated_dict[agent] = False 
-
-            all_done = all_done and done_dict[agent]
+            if done_dict[agent] == False:
+                obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
+            else:
+                del obs_dict[agent]
+                del done_dict[agent]
+            truncated_dict[agent] = False
+            if agent in done_dict:
+                all_done = all_done and done_dict[agent]
+            
             
 
         # for idx, n in enumerate(total_obs):
@@ -534,7 +541,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         truncated_dict["__all__"] = False 
 
         # create dictionary 
-        
         self.obs = obs_dict
 
         info = {}

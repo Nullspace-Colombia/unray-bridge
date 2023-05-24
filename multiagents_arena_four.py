@@ -6,97 +6,24 @@ Main.py
         - multiagents: a simple example of BridgeConnection on a 
 """
 
-from tests.single_agents import single_agents
-from tests.multiagents import multiagents
-from argparse import ArgumentParser
+from unray_bridge.envs.envs import MultiAgentArena_4
 from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
-from unray_bridge.envs.spaces import BridgeSpaces
+from ray.rllib.algorithms.ppo import PPOConfig
+from ray.tune.registry import register_env
 
 import numpy as np
 
-
-env_config  = {
-    "agent-1":{
-        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
-        "action": BridgeSpaces.Discrete(4),
-        "can_show": 1,
-        "can_see": 2,                        
-        "obs_order": {   
-            "agent-1": [0], 
-            "agent-2": [0]
-        }
-    }, 
-    "agent-2":{
-        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
-        "action": BridgeSpaces.Discrete(4),
-        "can_show": 1,
-        "can_see": 2,
-        "obs_order": {
-            "agent-2": [0], 
-            "agent-1": [0]
-        }
-    },
-    "agent-3":{
-        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
-        "action": BridgeSpaces.Discrete(4),
-        "can_show": 1,
-        "can_see": 2,
-        "obs_order": {
-            "agent-3": [0], 
-            "agent-4": [0]
-        }
-    },
-    "agent-4":{
-        "observation": BridgeSpaces.MultiDiscrete([64, 64]),
-        "action": BridgeSpaces.Discrete(4),
-        "can_show": 1,
-        "can_see": 2,
-        "obs_order": {
-            "agent-4": [0], 
-            "agent-3": [0]
-        }
-    }
-}
-
-env = MultiAgentBridgeEnv(
-    name = "multiagent-arena-four",
-    ip = 'localhost',
-    port = 10011, 
-    config = env_config
-)
-
-# Actions test 
-action = {
-    'agent-1': np.array([0]),
-    'agent-2': np.array([2]),
-    'agent-3': np.array([1]),
-    'agent-4': np.array([3]),
-}
-action2 = {
-    'agent-1': np.array([1]),
-    'agent-2': np.array([0]),
-    'agent-3': np.array([0]),
-    'agent-4': np.array([0]),
-}
-action3 = {
-    'agent-1': np.array([3]),
-    'agent-2': np.array([0]),
-    'agent-3': np.array([3]),
-    'agent-4': np.array([1]),
-}
-action4 = {
-    'agent-1': np.array([2]),
-    'agent-2': np.array([1]),
-    'agent-3': np.array([2]),
-    'agent-4': np.array([2]),
-}
-
 if __name__ == "__main__":
-    env.step(action)
-    print("------------------------------------------")
-    env.step(action2)
-    print("------------------------------------------")
-    env.step(action3)
-    print("------------------------------------------")
-    env.step(action4)
-    print("------------------------------------------")
+    register_env('multiagents-arena', MultiAgentArena_4.get_env())
+
+    config = PPOConfig()
+
+    config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
+    config = config.resources(num_gpus=0)  
+    config = config.rollouts(num_rollout_workers=1)
+
+    algo = config.build(env = 'multiagents-arena')
+    for i in range(1):
+        result = algo.train()
+        print(f"train {i}")
+    print(result['episode_reward_mean'])
