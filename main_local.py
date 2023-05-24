@@ -5,7 +5,9 @@ from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
 if __name__ == '__main__':
-    register_env('multiagents-arena', MultiAgentArena.get_env())
+    register_env('multiagents-arena', MultiAgentArena.get_env(
+        amount_of_envs= 2
+    ))
 
     config = PPOConfig()
 
