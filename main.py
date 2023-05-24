@@ -40,16 +40,12 @@ action2 = {
     'agent-2:1': np.array([0]),
     'agent-1:2': np.array([1]),
     'agent-2:2': np.array([3]),
-    'agent-1:3': np.array([2]),
-    'agent-2:3': np.array([0])
 }
 action3 = {
     'agent-1:1': np.array([2]),
     'agent-2:1': np.array([3]),
     'agent-1:2': np.array([1]),
     'agent-2:2': np.array([3]),
-    'agent-1:3': np.array([1]),
-    'agent-2:3': np.array([3])
 }
 action4 = {
     'agent-1': np.array([2]),
