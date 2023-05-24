@@ -48,20 +48,20 @@ env = MultiAgentBridgeEnv(
 
 # Actions test 
 action = {
-    'agent-1': np.array([0]),
-    'agent-2': np.array([2])
+    'agent-1': np.array([2]),
+    'agent-2': np.array([0])
 }
 action2 = {
-    'agent-1': np.array([1]),
+    'agent-1': np.array([2]),
     'agent-2': np.array([0])
 }
 action3 = {
-    'agent-1': np.array([3]),
-    'agent-2': np.array([0])
+    'agent-1': np.array([2]),
+    'agent-2': np.array([3])
 }
 action4 = {
     'agent-1': np.array([2]),
-    'agent-2': np.array([1])
+    'agent-2': np.array([2])
 }
 
 if __name__ == "__main__":
@@ -71,9 +71,6 @@ if __name__ == "__main__":
     print("------------------------------------------")
     env.step(action3)
     print("------------------------------------------")
-    env.step(action4)
-    print("------------------------------------------")
-
 
 
 

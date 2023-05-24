@@ -3,7 +3,6 @@ from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 from ray.rllib.env import ExternalEnv
 
 
-
 def get_env(_ip = 'localhost', _port=10011, instance = False):
     env_config  = {
         "agent-1":{
