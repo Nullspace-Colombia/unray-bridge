@@ -32,8 +32,10 @@ def get_config():
 
 def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1):
     if amount_of_envs > 1:
-        MCE = MultiEnvCreator(env_config, amount_of_envs= amount_of_envs )
+        MCE = MultiEnvCreator(get_config(), amount_of_envs= amount_of_envs )
         env_config = MCE.get_multienv_config_dict()
+    else:
+        env_config = get_config()
 
     if instance:
         return MultiAgentBridgeEnv(
