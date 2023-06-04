@@ -70,14 +70,17 @@ def cli():
         print("available environments")
 
     if "env:create:environment_name" in list(args_dict):
-        print("creating environment:")
+        print("Unray Environment Creator")
+        print("---")
+        print("[INTERACTIVE] You will be able to create your own unray_bridge environment definition. For more information on the parameters of the environment, visit https://github.com/Nullspace-Colombia/unray-bridge\n\n")
+        
         n = int(input("- Number of agents for the environment: "))
         print("")
         for agent in range(n): 
-            print(f">Agent-{agent + 1}")
-            agent_name = input(" -Agent name: ")
-            obs_order = input(" -Obs order: ")
-            can_see = input(" -Can see: ")
+            print(f"> Agent-{agent + 1}")
+            agent_name = input("  - Agent name: ")
+            obs_order = input("  - Obs order: ")
+            can_see = input("  - Can see: ")
 
         print("create environment with name: %s" % (args_dict["env:create:environment_name"]))
         # print("env-summary: ") 
