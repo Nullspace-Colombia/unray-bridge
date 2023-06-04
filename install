@@ -1,0 +1,2 @@
+python -m build cli_tools && pip install cli_tools/dist/unray_cli-0.0.1-py3-none-any.whl
+echo "Done"
