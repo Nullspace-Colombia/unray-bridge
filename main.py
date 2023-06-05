@@ -18,7 +18,7 @@ from unray_bridge.envs.envs.MultiAgentArena import get_config
 import numpy as np
 
 single_env = get_config()
-creator = MultiEnvCreator(single_env, amount_of_envs=3)
+creator = MultiEnvCreator(single_env, amount_of_envs=2)
 env_config = creator.get_multienv_config_dict()
 
 env = MultiAgentBridgeEnv(
@@ -48,17 +48,14 @@ action3 = {
     'agent-2:2': np.array([3]),
 }
 action4 = {
-    'agent-1': np.array([2]),
-    'agent-2': np.array([2])
+    'agent-1:1': np.array([0]),
+    'agent-2:1': np.array([1]),
+    'agent-1:2': np.array([0]),
+    'agent-2:2': np.array([1]),
 }
 
 if __name__ == "__main__":
-    env.step(action)
-    print("------------------------------------------")
-    env.step(action2)
-    print("------------------------------------------")
-    env.step(action3)
-    print("------------------------------------------")
+    env.step(action4)
 
 
 
