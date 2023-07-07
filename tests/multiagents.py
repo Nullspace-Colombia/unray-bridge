@@ -1,0 +1,3 @@
+
+def multiagents(): 
+    print("multiagents")
