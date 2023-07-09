@@ -34,7 +34,7 @@ if __name__ == '__main__':
     )
     
     algo = config.build(env = 'multiagents-arena')
-    for i in range(10):
+    for i in range(1):
         print("training")
         results = algo.train()
     print(results['policy_reward_mean']['arena_1'])
