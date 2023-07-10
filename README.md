@@ -2,6 +2,16 @@
 
 Framework for communication between Unreal Engine and Python
 
+## Python
+
+This repository contains all the files needed for usage in Python. To get the files needed for Unreal Engine, please check [Unreal Engine Files](#unreal-engine-files) section for details.
+
+## Unreal Engine Files
+
+We are currently using Unreal Engine 5.1.
+
+Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files needed for UE5 configuration.
+
 ## CLI Unray 
 
 ## Getting Started
@@ -11,10 +21,6 @@ Clone the repo and install the given dependencies. This is just the python-side 
  pip install -r requirements.txt
 ```
 > We recommend conda for creating a virtualenv and installing the dependendencies
-
-### Unreal Engine Files
-
-Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files needed for UE5 configuration.
 
 # RL Environment for simple training
 ## Single Agent
@@ -111,38 +117,12 @@ env = MultiAgentBridgeEnv(
 )
 ```
 
-## Under the hood
-Inside the framework the data flows between three nodes. UE5 Environment, MultiAgentBridgeEnv and RLlib. 
-
-<p align="center">
-<img width="50%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/dataflow.png" /> 
-</p>
-
-The JSON action / observation is given as a dictionary with the agent-names as the keys. 
-
-```python
-obs = {
-  'agent-1': <Observation>,
-  'agent-2': <Observation>,
-  ...
-  'agent-n': <Observation>,
-}
-```
-
-However, as the BridgeConnection is over a TCP / IP protocol, the socket only sends bytesbuffers. In each `step` convert the dict actions given by **ray** into a buffer. For the **MultiAgentsArena** case, the action space is a `BridgeSpaces.Dicrete([4])`, for which each agent will send a single scalar.
-
-<p align="center">
- <img width="60%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/nagent.png" /> 
-</p>
-
-
-
-
-
 ### UE5 Environment
 
 <p align="center">
-  <img width="70%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/ue5-scene.png" /> 
+  <img width="70%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/ue5-scene.png"
+   ![Uploading multiagentArena.png…]()
+ /> 
 </p> 
 
 
