@@ -8,7 +8,7 @@ This repository contains all the files needed for usage in Python. To get the fi
 
 We are currently using Unreal Engine 5.1.
 
-Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files needed for UE5 configuration.
+Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files in the UE5 project.
 
 ## CLI Unray 
 
