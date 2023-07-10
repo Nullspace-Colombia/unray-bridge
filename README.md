@@ -4,7 +4,6 @@ Framework for communication between Unreal Engine and Python
 
 ## CLI Unray 
 
-
 ## Getting Started
 Clone the repo and install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
 ```terminal
@@ -13,6 +12,9 @@ Clone the repo and install the given dependencies. This is just the python-side 
 ```
 > We recommend conda for creating a virtualenv and installing the dependendencies
 
+### Unreal Engine Files
+
+Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files needed for UE5 configuration.
 
 # RL Environment for simple training
 ## Single Agent
