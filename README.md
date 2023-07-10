@@ -2,8 +2,6 @@
 
 Framework for communication between Unreal Engine and Python
 
-## Python
-
 This repository contains all the files needed for usage in Python. To get the files needed for Unreal Engine, please check [Unreal Engine Files](#unreal-engine-files) section for details.
 
 ## Unreal Engine Files
