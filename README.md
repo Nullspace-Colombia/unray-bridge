@@ -20,7 +20,17 @@ Clone the repo and install the given dependencies. This is just the python-side 
  git clone https://github.com/mora200217/unray-bridge.git && cd unray-bridge 
  pip install -r requirements.txt
 ```
-> We recommend conda for creating a virtualenv and installing the dependendencies
+> We recommend conda for creating a virtualenv and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
+
+### Running Examples
+
+In your UE5 scene, start the MultiAgentArena_BP map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+
+```terminal
+python main_local.py
+```
+
+If everything is correct, the agents will start to move. 
 
 # RL Environment for simple training
 ## Single Agent
