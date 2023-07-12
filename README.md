@@ -17,7 +17,7 @@ We are currently using Unreal Engine 5.1. We recommend using the same version to
 ## Getting Started
 Clone the repo and install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
 ```terminal
- git clone https://github.com/mora200217/unray-bridge.git && cd unray-bridge 
+https://github.com/Nullspace-Colombia/unray-bridge.git  && cd unray-bridge 
  pip install -r requirements.txt
 ```
 > We recommend conda for creating a virtualenv and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
