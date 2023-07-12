@@ -18,7 +18,7 @@ from unray_bridge.envs.envs.MultiAgentArena import get_config
 import numpy as np
 
 single_env = get_config()
-creator = MultiEnvCreator(single_env, amount_of_envs=3)
+creator = MultiEnvCreator(single_env, amount_of_envs=1)
 env_config = creator.get_multienv_config_dict()
 
 env = MultiAgentBridgeEnv(
