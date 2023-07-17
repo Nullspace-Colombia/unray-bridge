@@ -14,6 +14,8 @@
 import argparse, os
 from os import environ
 
+from .utils import print_env_name
+
 import sys
 import time
 import threading
@@ -43,10 +45,18 @@ def serve_static(filename):
 
 @app.route('/api/envs', methods=['GET'])
 @cross_origin()
-def get_users():
+def get_envs():
     with open('/Users/amoralesma/Documents/unray/envs/database.json', 'r') as f:
         data = json.load(f)
     return jsonify(data['envs'])
+
+
+@app.route('/api/current', methods=['GET'])
+@cross_origin()
+def get_current():
+    with open('/Users/amoralesma/Documents/unray/envs/database.json', 'r') as f:
+        data = json.load(f)
+    return jsonify(data['current-env'])
 
 def start_server():
     # server_address = (ip, port)
@@ -96,9 +106,18 @@ def cli():
     
     subparser = parser.add_subparsers()
     
-    init = subparser.add_parser("init", help="init new environment for unray_bridge")
+    init = subparser.add_parser("init", help="init new ray cluster")
+    init.set_defaults(init=True)
+
+    stop = subparser.add_parser("stop", help="stop ray cluster and unray")
+    stop.set_defaults(stop=True)
+
+    train = subparser.add_parser("train", help="stop ray cluster and unray")
+    train.set_defaults(train=True)
+
     dashboard = subparser.add_parser("dashboard", help="crate a dashboard server")
     dashboard.set_defaults(dashboard=True)
+
     env = subparser.add_parser("env", help="environments tools")
     config = subparser.add_parser("config", help= "overall configuration tools")
     
@@ -127,8 +146,19 @@ def cli():
 
     env_create = env_sp.add_parser("create", help= "create new environment")
     env_list = env_sp.add_parser("list", help= "list all the available environments")
+    env_list.set_defaults(envlist=True)
     env_info = env_sp.add_parser("info", help= "show information for selected env")
     env_delete = env_sp.add_parser("delete", help= "delete selected environment")
+    env_select = env_sp.add_parser("select", help= "delete selected environment")
+    env_select.set_defaults(env_select = True)
+
+    env_select_sp = env_select.add_subparsers(title="current env")
+
+    env_select_set = env_select_sp.add_parser("set", help = "set new current")
+    env_select_set.add_argument("env:select:set", metavar="env_name", help = "net current environment name")
+    
+    
+    
 
     # Parameters 
     env_create.add_argument("env:create:environment_name", metavar="env_name", help="environment name to create (no spaces)")
@@ -142,9 +172,12 @@ def cli():
     args = parser.parse_args()
     args_dict = args.__dict__
     
+    DIR = environ.get('UNRAY_CONFIG_DIR')
+    current_database = open(f"{DIR}/envs/database.json", 'r')
+    current_data = json.load(current_database)
     
     # env_keys = env_create.parse_args()
-    print(args_dict)
+    # print(args_dict)
     if "dashboard" in list(args_dict):
         print("Starting server at port 9000")
         CURRENT_PATH = os.getcwd()
@@ -153,7 +186,57 @@ def cli():
         threading.Thread(target=start_server).start()
         webbrowser.open_new(url)
 
+    if "init" in list(args_dict):
+        print("starting ray cluster")
+        os.system("ray start --head")
+
+    if "stop" in list(args_dict):
+        print("starting ray cluster")
+        os.system("ray stop")
+
+    if "train" in list(args_dict):
+        print("=" * 20)
+        print("   TRAINING ")
+        print("-" * 3)
+        print(" > Begining training with ({}) environment as current".format(current_data['current-env']))
+        print(" If you want to train unray with a differente env refer to [unray env list] to check available created envs.")
+        print("=" * 20)
+        print("")
+
+    if "env_select" in list(args_dict) and not("env:select:set" in list(args_dict)):
+        DIR = environ.get('UNRAY_CONFIG_DIR')
+        with open(f'{DIR}/envs/database.json', 'r') as f:
+            data = json.load(f)
+            print("current env: %s" % data['current-env'])
+        
+
+
+    if "envlist" in list(args_dict):
+        print("List for environments")
+        # Get al environment list 
+        DIR = environ.get('UNRAY_CONFIG_DIR')
+        with open(f'{DIR}/envs/database.json', 'r') as f:
+            data = json.load(f)
+            print_env_name(data['envs'])
+
     
+    if "env:select:set" in list(args_dict):
+        print("new selected env: ")
+        print(args_dict["env:select:set"])
+
+        DIR = environ.get('UNRAY_CONFIG_DIR')
+        with open(f'{DIR}/envs/database.json', 'r') as f:
+            jsonObj = json.load(f)
+
+        with open(f'{DIR}/envs/database.json', 'w') as f:
+            jsonObj['current-env'] = args_dict["env:select:set"]
+            json.dump(jsonObj, f, 
+                      indent=4, 
+                      separators=(',', ':'))
+            
+            
+            
+
 
     if "env:info:environment_name" in list(args_dict):
         print("available environments")
@@ -172,6 +255,27 @@ def cli():
             can_see = input("  - Can see: ")
 
         print("create environment with name: %s" % (args_dict["env:create:environment_name"]))
+        DIR = environ.get('UNRAY_CONFIG_DIR')
+        with open(f'{DIR}/envs/database.json', 'r') as f:
+            data = json.load(f)
+            print_env_name(data['envs'])
+
+        with open(f'{DIR}/envs/database.json', 'w') as json_file:
+            data['envs'].append({
+                "name": args_dict['env:create:environment_name'],
+                "agents": [
+                    {"name": "hola"}
+                ]
+            })
+
+            json.dump(data, json_file,
+                      indent=4,
+                      separators=(',', ':'))
+            
+
+
+        
+
         # print("env-summary: ") 
    
 if __name__ == "__main__":

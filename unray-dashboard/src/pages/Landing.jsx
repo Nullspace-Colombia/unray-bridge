@@ -7,14 +7,24 @@ import { useEffect, useState } from "react";
 
 export const Landing =  () => {
     const [envData, setEnvData] = useState()
+    const [currentEnv, setCurrentEnv] = useState()
     useEffect(()=> {
         console.log("as")
+        
         axios.get("http://127.0.0.1:5000/api/envs").then(
             (res)=> {
                 console.log(res.data)
                 setEnvData(res.data)
             }
         )
+
+        axios.get("http://127.0.0.1:5000/api/current").then(
+            (res)=> {
+                console.log(res.data)
+                setCurrentEnv(res.data)
+            }
+        )
+        
 
     }, [])
 
@@ -28,7 +38,7 @@ export const Landing =  () => {
     }
     return (
         <div className='text-light bg-body-tertiary position-relative overflow-hidden ' style={{height: "100vh"}}>
-            <CustomNav/> 
+            <CustomNav currentEnv= {currentEnv}/> 
             <Container className="text-dark bg-white text-left  h-100 p-5 w-100">
                     <article className="text-start">
                         <h2>Unray Dashboard</h2>

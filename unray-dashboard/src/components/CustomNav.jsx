@@ -1,11 +1,13 @@
 
 import Container from 'react-bootstrap/Container';
+import "./CustomNav.css"; 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
 
-export const CustomNav = () => {
+export const CustomNav = (props) => {
+
     return ( 
         <Navbar expand="lg" className="bg-dark">
         <Container className='text-light'>
@@ -28,7 +30,11 @@ export const CustomNav = () => {
               </NavDropdown>
             </Nav>
           </Navbar.Collapse>
+          <span className={`selected-environment p-1 ${ props.currentEnv == "-1" ? 'bg-warning' : 'bg-success'} px-5`}>
+            {props.currentEnv == "-1" ?  "none" : props.currentEnv}
+          </span>
         </Container>
+
       </Navbar>
     )
 }
