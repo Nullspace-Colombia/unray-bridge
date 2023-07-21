@@ -156,11 +156,7 @@ env = MultiAgentBridgeEnv(
 
 
 # RL Environment for parallel training 
-Central policy server is implemented
 
-
-new parameters for multiagents lecture. 
-* `can_see`: Number of supplied observation by the given agent. 
-* `obs_order`: Order of observations for the given agent. Each observation could be from the agent and/or from other(s) agent(s)
+In dev process.
 
 
