@@ -12,6 +12,7 @@ echo "** A RLLib framework for external simulation using Unreal Engine "
 echo "Created and Mantained by NullSpace"
 echo " "
 echo " -- "
+python3 -m build . && pip3 install dist/unray_bridge-0.0.1-py3-none-any.whl  --force-reinstall
 python3 -m build cli_tools && pip3 install cli_tools/dist/unray_cli-0.0.1-py3-none-any.whl  --force-reinstall
 echo "\n"
 echo "Unray has been successfully installed. Get help by: "

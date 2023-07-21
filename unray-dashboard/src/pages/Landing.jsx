@@ -6,7 +6,8 @@ import axios from 'axios';
 import { useEffect, useState } from "react";
 import { FloatingButton } from "../components/FloatingButton";
 
-import Play  from "../assets/SVG/play.svg"; 
+import {ReactComponent as Play}  from "../assets/SVG/play.svg"; 
+import {ReactComponent as Plus}  from "../assets/SVG/plus.svg"; 
 
 export const Landing =  () => {
     const [envData, setEnvData] = useState()
@@ -57,8 +58,8 @@ export const Landing =  () => {
 
 
             <div className="d-flex flex-column position-fixed mb-2" style={ {right: "0px", bottom: "0px"}}>
-                <FloatingButton Color = "blue" icon = {Play} /> 
-                <FloatingButton Color = "red" icon = ""/> 
+                <FloatingButton Color = "black" icon = {Play} /> 
+                <FloatingButton Color = "black" icon = { Plus }/> 
             </div>
         </div>
     )

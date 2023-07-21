@@ -10,7 +10,7 @@ export const FloatingButton = (props) => {
         <span className="floatingButton my-1 mx-3" onClick={clickHandler} style = {{
             background: props.Color || "red"
         }}>
-            <props.Icon/> 
+            <props.icon style = {{fill: "white", width: "1.1rem"}}/>
             
         </span>
     )

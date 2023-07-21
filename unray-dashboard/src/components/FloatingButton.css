@@ -6,7 +6,7 @@
     height: 3.2rem;
     
     background: black;
-    
+    color: white;
     content: "+";
     bottom: 0;
     border-radius: 100px;
@@ -16,9 +16,3 @@
     cursor: pointer;
 }
 
-.floatingButton::after{
-    font-weight: 500;
-    content: "+";
-    font-size: 1.5rem;
-
-}

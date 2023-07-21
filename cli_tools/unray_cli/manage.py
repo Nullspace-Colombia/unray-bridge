@@ -15,7 +15,7 @@ import argparse, os
 from os import environ
 
 from .utils import print_env_name
-
+from unray_bridge.train import train as training_epoch
 import sys
 import time
 import threading
@@ -208,6 +208,11 @@ def cli():
         print(" If you want to train unray with a differente env refer to [unray env list] to check available created envs.")
         print("=" * 20)
         print("")
+
+        training_epoch() # Training test
+
+        
+
 
     if "env_select" in list(args_dict) and not("env:select:set" in list(args_dict)):
         DIR = environ.get('UNRAY_CONFIG_DIR')

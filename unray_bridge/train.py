@@ -4,7 +4,7 @@ from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
-def train_test():
+def train():
     register_env('multiagents-arena', MultiAgentArena.get_env(
         amount_of_envs= 1
     ))
@@ -22,3 +22,4 @@ def train_test():
         result = algo.train()
         print(f"train {i}")
     print(result['episode_reward_mean'])
+
