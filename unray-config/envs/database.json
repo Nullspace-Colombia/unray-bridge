@@ -1,0 +1,13 @@
+{
+    "current-env":"c",
+    "envs":[
+        {
+            "name":"PPO",
+            "agents":[
+                {
+                    "name":"s"
+                }
+            ]
+        }
+    ]
+}

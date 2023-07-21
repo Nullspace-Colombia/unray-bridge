@@ -10,20 +10,21 @@ export const Landing =  () => {
     const [currentEnv, setCurrentEnv] = useState()
     useEffect(()=> {
         console.log("as")
-        
-        axios.get("http://127.0.0.1:5000/api/envs").then(
+        setInterval(() =>   axios.get("http://127.0.0.1:5000/api/envs").then(
             (res)=> {
                 console.log(res.data)
                 setEnvData(res.data)
             }
-        )
-
-        axios.get("http://127.0.0.1:5000/api/current").then(
+        ),500); 
+      
+        
+        setInterval(() =>  axios.get("http://127.0.0.1:5000/api/current").then(
             (res)=> {
                 console.log(res.data)
                 setCurrentEnv(res.data)
             }
-        )
+        ), 250)
+       
         
 
     }, [])

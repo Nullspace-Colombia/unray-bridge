@@ -26,10 +26,16 @@ from flask_cors import CORS, cross_origin
 from flask import Flask, render_template, send_from_directory,jsonify
 import json
 ip = "127.0.0.1"
-port = 5000
+port = 8000
 url = f"http://{ip}:{port}"
 
-app = Flask(__name__, static_folder='/Users/amoralesma/Documents/Nullspace/unray-bridge/unray-dashboard/build/static', template_folder="/Users/amoralesma/Documents/Nullspace/unray-bridge/unray-dashboard/build")
+
+## Global environment variables 
+DASHBOARD_DIR = os.environ["DASHBOARD_DIR"]
+DIR_PATH = os.environ["UNRAY_CONFIG_DIR"]
+
+
+app = Flask(__name__, static_folder=f'{DASHBOARD_DIR}/build/static', template_folder=f"{DASHBOARD_DIR}/build")
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -46,7 +52,7 @@ def serve_static(filename):
 @app.route('/api/envs', methods=['GET'])
 @cross_origin()
 def get_envs():
-    with open('/Users/amoralesma/Documents/unray/envs/database.json', 'r') as f:
+    with open(f'{DIR_PATH}/envs/database.json', 'r') as f:
         data = json.load(f)
     return jsonify(data['envs'])
 
@@ -54,7 +60,7 @@ def get_envs():
 @app.route('/api/current', methods=['GET'])
 @cross_origin()
 def get_current():
-    with open('/Users/amoralesma/Documents/unray/envs/database.json', 'r') as f:
+    with open(f'{DIR_PATH}/envs/database.json', 'r') as f:
         data = json.load(f)
     return jsonify(data['current-env'])
 
@@ -63,12 +69,12 @@ def start_server():
     # httpd = HTTPServer(server_address, Handler)
     # Get info 
 
-    app.run()
+    app.run(port = 8000, host="0.0.0.0")
     # httpd.serve_forever()
 
 
 def cli():
-    DIR_PATH = "/Users/{}/Documents/unray".format(os.environ["USER"])
+    DIR_PATH = os.environ["UNRAY_CONFIG_DIR"]
 
     # Check if config is set 
     if not environ.get('UNRAY_CONFIG_DIR') and not os.path.exists(DIR_PATH):
