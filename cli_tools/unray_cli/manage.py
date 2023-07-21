@@ -121,6 +121,12 @@ def cli():
     train = subparser.add_parser("train", help="stop ray cluster and unray")
     train.set_defaults(train=True)
 
+    train.add_argument("--port", help="Define the port for network connectoin")
+    train.add_argument("--ip",  help="Define the ip for network connection")
+
+
+
+
     dashboard = subparser.add_parser("dashboard", help="crate a dashboard server")
     dashboard.set_defaults(dashboard=True)
 
@@ -209,7 +215,18 @@ def cli():
         print("=" * 20)
         print("")
 
-        training_epoch() # Training test
+        print(" -- NETWORK ")
+        print(f"   * port [{args_dict['port']}]")
+        print(f"   * ip   [{args_dict['ip']}]")
+
+        print("")
+        
+        training_epoch(port = args_dict['port'], ip = args_dict['ip'] )
+
+        
+
+
+        
 
         
 

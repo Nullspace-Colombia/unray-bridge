@@ -3,5 +3,7 @@ Flask-Cors<=4.0.0
 ray[rllib]<=2.3.0
 Gymnasium<=0.26.3
 gymnasium-notices<=0.0.1
+tensorflow<=2.11
+protobuf==3.20.*
 build<=0.10.0
 

@@ -276,7 +276,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             gui.print_title()
 
         self.ip = ip # IP Address for IP Connection 
-        self.port = port 
+        self.port = int(port)
         
         if not name:
             print("error")

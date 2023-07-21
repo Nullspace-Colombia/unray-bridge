@@ -9,7 +9,8 @@ def print_title():
     """
     clear_command = {
         "Darwin": "clear", 
-        "Windows": "cls"
+        "Windows": "cls",
+        "Linux": "clear",
     }
     os.system(clear_command[platform.system()])
     

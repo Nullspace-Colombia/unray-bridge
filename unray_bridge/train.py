@@ -1,12 +1,16 @@
 from unray_bridge.envs.envs import MultiAgentArena
 from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 
+
+
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
-def train():
+def train(port = None, ip = None):
     register_env('multiagents-arena', MultiAgentArena.get_env(
-        amount_of_envs= 1
+        amount_of_envs= 1, 
+        _port = port, 
+        _ip = ip
     ))
 
     config = PPOConfig()
