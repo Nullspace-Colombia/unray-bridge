@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y python3.9 python3-pip
 COPY requirements.txt ./
 COPY . ./unray
 
+
 RUN pip install --no-cache-dir -r requirements.txt
 RUN cd unray && ./install
 RUN mkdir ./unray-config && cd unray-config && mkdir envs && mkdir config && cd envs
