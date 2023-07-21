@@ -49,7 +49,7 @@ In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once 
 python main_local.py
 ```
 
-If everything is correct, the cartpole will start to move. 
+If everything is correct, the agents will start to move. 
 
 
 # RL Environment for simple training
