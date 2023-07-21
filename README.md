@@ -23,14 +23,34 @@ https://github.com/Nullspace-Colombia/unray-bridge.git  && cd unray-bridge
 > We recommend conda for creating a virtualenv and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
 
 ### Running Examples
+There are currently two examples ready for you to run.
 
-In your UE5 scene, start the MultiAgentArena_BP map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+#### Cartpole
+
+![Cartpole](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/93e9492e-695b-4bef-ab32-8182e62bf40e)
+
+In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+
+```terminal
+python main_cartpole.py
+```
+
+If everything is correct, the cartpole will start to move. 
+
+#### MultiAgent Arena
+
+![MultiAgentArena_emv](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/91c75688-342d-4b5c-813c-d4c302614d0e)
+
+In this env, you have two agents competing in a single env. 
+
+In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
 python main_local.py
 ```
 
-If everything is correct, the agents will start to move. 
+If everything is correct, the cartpole will start to move. 
+
 
 # RL Environment for simple training
 ## Single Agent
