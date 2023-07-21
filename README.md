@@ -150,8 +150,7 @@ env = MultiAgentBridgeEnv(
 ### UE5 Environment
 
 <p align="center">
-  <img width="70%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/ue5-scene.png"
-   ![Uploading multiagentArena.png…]()
+  <img width="70%" src="https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/c9e3b4b2-e8a5-46e4-8ade-876b049de4d6"
  /> 
 </p> 
 
