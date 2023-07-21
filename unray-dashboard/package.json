@@ -38,6 +38,7 @@
     ]
   },
   "devDependencies": {
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "file-loader": "^6.2.0"
   }
 }

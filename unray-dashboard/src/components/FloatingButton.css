@@ -1,0 +1,24 @@
+.floatingButton{
+    /* position: fixed; */
+    
+    right: 0; 
+    width: 3.2rem;
+    height: 3.2rem;
+    
+    background: black;
+    
+    content: "+";
+    bottom: 0;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.floatingButton::after{
+    font-weight: 500;
+    content: "+";
+    font-size: 1.5rem;
+
+}

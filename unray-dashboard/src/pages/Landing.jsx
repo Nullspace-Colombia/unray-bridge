@@ -4,13 +4,16 @@ import { ItemList } from "../components/ItemList"
 
 import axios from 'axios'; 
 import { useEffect, useState } from "react";
+import { FloatingButton } from "../components/FloatingButton";
+
+import Play  from "../assets/SVG/play.svg"; 
 
 export const Landing =  () => {
     const [envData, setEnvData] = useState()
     const [currentEnv, setCurrentEnv] = useState()
     useEffect(()=> {
         console.log("as")
-        setInterval(() =>   axios.get("http://127.0.0.1:5000/api/envs").then(
+        setInterval(() =>   axios.get("http://127.0.0.1:8000/api/envs").then(
             (res)=> {
                 console.log(res.data)
                 setEnvData(res.data)
@@ -18,7 +21,7 @@ export const Landing =  () => {
         ),500); 
       
         
-        setInterval(() =>  axios.get("http://127.0.0.1:5000/api/current").then(
+        setInterval(() =>  axios.get("http://127.0.0.1:8000/api/current").then(
             (res)=> {
                 console.log(res.data)
                 setCurrentEnv(res.data)
@@ -38,11 +41,11 @@ export const Landing =  () => {
         return a; 
     }
     return (
-        <div className='text-light bg-body-tertiary position-relative overflow-hidden ' style={{height: "100vh"}}>
+        <div className='text-light bg-body-tertiary position-relative overflow-scroll ' style={{height: "100vh", overflowY: "scroll"}}>
             <CustomNav currentEnv= {currentEnv}/> 
-            <Container className="text-dark bg-white text-left  h-100 p-5 w-100">
+            <Container className="text-dark bg-white text-left mt-5 p-5 w-100 position-relative">
                     <article className="text-start">
-                        <h2>Unray Dashboard</h2>
+                        <h2>Available Environments</h2>
                         <p>Comienza definiendo los entornos que quieras</p>
                     </article>
 
@@ -51,6 +54,12 @@ export const Landing =  () => {
                     
                 </div> : "-"}
             </Container>
+
+
+            <div className="d-flex flex-column position-fixed mb-2" style={ {right: "0px", bottom: "0px"}}>
+                <FloatingButton Color = "blue" icon = {Play} /> 
+                <FloatingButton Color = "red" icon = ""/> 
+            </div>
         </div>
     )
 }
