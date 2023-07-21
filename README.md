@@ -1,20 +1,56 @@
 # Unray Bridge
 
-Framework for communication between Unreal Engine and Python
+Framework for communication between Unreal Engine and Python.
+
+This repository contains all the files needed for usage in Python. To get the files needed for Unreal Engine, please check [Unreal Engine](#unreal-engine) section for details.
+
+## Unreal Engine
+
+Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files in the UE5 project.
+
+### Engine Version
+
+We are currently using Unreal Engine 5.1. We recommend using the same version to ensure project stability.
 
 ## CLI Unray 
 
 ## Getting Started
 Clone the repo and install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
 ```terminal
- git clone https://github.com/mora200217/unray-bridge.git && cd unray-bridge 
+https://github.com/Nullspace-Colombia/unray-bridge.git  && cd unray-bridge 
  pip install -r requirements.txt
 ```
-> We recommend conda for creating a virtualenv and installing the dependendencies
+We recommend conda for creating a virtualenv and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
 
-### Unreal Engine Files
+### Running Examples
+There are currently two examples ready for you to run.
 
-Go to https://github.com/Nullspace-Colombia/Multiagents and clone the repo. This will provide you with all the files needed for UE5 configuration.
+#### Cartpole
+
+![Cartpole](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/93e9492e-695b-4bef-ab32-8182e62bf40e)
+
+In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+
+```terminal
+python main_cartpole.py
+```
+
+If everything is correct, the cartpole will start to move. 
+
+#### MultiAgent Arena
+
+![MultiAgentArena_emv](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/91c75688-342d-4b5c-813c-d4c302614d0e)
+
+In this env, you have two agents competing in a single env. 
+
+In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+
+```terminal
+python main_local.py
+```
+
+If everything is correct, the agents will start to move. 
+
 
 # RL Environment for simple training
 ## Single Agent
@@ -111,47 +147,16 @@ env = MultiAgentBridgeEnv(
 )
 ```
 
-## Under the hood
-Inside the framework the data flows between three nodes. UE5 Environment, MultiAgentBridgeEnv and RLlib. 
-
-<p align="center">
-<img width="50%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/dataflow.png" /> 
-</p>
-
-The JSON action / observation is given as a dictionary with the agent-names as the keys. 
-
-```python
-obs = {
-  'agent-1': <Observation>,
-  'agent-2': <Observation>,
-  ...
-  'agent-n': <Observation>,
-}
-```
-
-However, as the BridgeConnection is over a TCP / IP protocol, the socket only sends bytesbuffers. In each `step` convert the dict actions given by **ray** into a buffer. For the **MultiAgentsArena** case, the action space is a `BridgeSpaces.Dicrete([4])`, for which each agent will send a single scalar.
-
-<p align="center">
- <img width="60%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/nagent.png" /> 
-</p>
-
-
-
-
-
 ### UE5 Environment
 
 <p align="center">
-  <img width="70%" src="https://github.com/mora200217/unray-bridge/blob/f/multiagent/assets/ue5-scene.png" /> 
+  <img width="70%" src="https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/c9e3b4b2-e8a5-46e4-8ade-876b049de4d6"
+ /> 
 </p> 
 
 
 # RL Environment for parallel training 
-Central policy server is implemented
 
-
-new parameters for multiagents lecture. 
-* `can_see`: Number of supplied observation by the given agent. 
-* `obs_order`: Order of observations for the given agent. Each observation could be from the agent and/or from other(s) agent(s)
+In dev process.
 
 
