@@ -1,3 +1,9 @@
 .selected-environment{
     border-radius: 10px;
 }
+
+.brand-text{
+    font-size: 1rem;
+    font-weight: 600;
+    
+}

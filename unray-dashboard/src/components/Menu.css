@@ -1,0 +1,41 @@
+ul.menu-list{
+    text-decoration: none;
+    list-style: none;
+    text-align: left;
+}
+
+ul>li>span{
+    width: 20px;
+    display: inline-block;
+    margin-right: 2rem;
+
+}
+
+ul>li>span{
+    width: 20px;
+    display: inline-block;
+    margin-right: 2rem;
+    
+
+}
+
+ul>li>span>svg{
+    width: 1.5rem;
+    
+}
+
+ul>li{
+    display: flex;
+    color: gray;
+    font-weight: 500; 
+    transition: 0.5s;
+    fill: gray;
+}
+
+ul> li:hover{
+    fill: aliceblue;
+    color:white;
+    cursor: pointer;
+}
+
+

@@ -1,66 +1,51 @@
-import Container from "react-bootstrap/esm/Container"
+// Landing.jsx
+
+import "./Landing.css"
+import axios from "axios";
+
 import { CustomNav } from "../components/CustomNav"
-import { ItemList } from "../components/ItemList"
-
-import axios from 'axios'; 
+import { Environments } from "./Environments";
 import { useEffect, useState } from "react";
-import { FloatingButton } from "../components/FloatingButton";
 
-import {ReactComponent as Play}  from "../assets/SVG/play.svg"; 
-import {ReactComponent as Plus}  from "../assets/SVG/plus.svg"; 
+/**
+ *  Landing Page
+ * 
+ *  @author Andrés Morales
+ *  
+ */
 
-export const Landing =  () => {
-    const [envData, setEnvData] = useState()
+export const Landing = () => {
+    // Constants 
+    const REST_API_IP = "127.0.0.1"; // Local host 
+    const REST_API_PORT = "8000"; // Defined for docker 
+    const REFRESH_TIME = 250; // ms 
+
+    // States 
     const [currentEnv, setCurrentEnv] = useState()
-    useEffect(()=> {
-        console.log("as")
-        setInterval(() =>   axios.get("http://127.0.0.1:8000/api/envs").then(
-            (res)=> {
-                console.log(res.data)
-                setEnvData(res.data)
-            }
-        ),500); 
-      
-        
-        setInterval(() =>  axios.get("http://127.0.0.1:8000/api/current").then(
-            (res)=> {
-                console.log(res.data)
+
+    useEffect(() => {
+        setInterval(() => axios.get(`http://${REST_API_IP}:${REST_API_PORT}/api/current`).then(
+            res => {
                 setCurrentEnv(res.data)
             }
-        ), 250)
-       
-        
-
+        ), REFRESH_TIME)
     }, [])
 
-    const getItems = (envData) => {
-        console.log(envData)
-        let a = envData.map((e)=>{
-            return (<ItemList envConfig = {e}/>)
-        })
-        console.log(a)
-        return a; 
-    }
+
     return (
-        <div className='text-light bg-body-tertiary position-relative overflow-scroll ' style={{height: "100vh", overflowY: "scroll"}}>
-            <CustomNav currentEnv= {currentEnv}/> 
-            <Container className="text-dark bg-white text-left mt-5 p-5 w-100 position-relative">
-                    <article className="text-start">
-                        <h2>Available Environments</h2>
-                        <p>Comienza definiendo los entornos que quieras</p>
-                    </article>
+        <div className='d-flex flex-column text-light bg-white position-relative overflow-scroll w-100 d-block' style={{ overflowY: "scroll", height: "100vh" }}>
+            {/* Custom Nav */}
+            <CustomNav currentEnv={currentEnv} />
 
-                {envData ?  <div className="d-flex flex-column">
-                    {getItems(envData)}
-                    
-                </div> : "-"}
-            </Container>
+            {/* Main Section */}
+            <section className="position-relative h-100 bg-white">
+                <Environments />
+            </section>
 
-
-            <div className="d-flex flex-column position-fixed mb-2" style={ {right: "0px", bottom: "0px"}}>
-                <FloatingButton Color = "black" icon = {Play} /> 
-                <FloatingButton Color = "black" icon = { Plus }/> 
+            <div className="w-100 position-absolute bg-info line-decoration-section d-flex justify-content-end px-5 align-items-center">
+                <span>v0.1</span>
             </div>
-        </div>
+        </div >
+
     )
 }

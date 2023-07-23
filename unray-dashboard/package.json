@@ -83,6 +83,8 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@syncfusion/ej2-react-dropdowns": "^22.1.39",
     "axios": "^1.4.0",
     "file-loader": "^6.2.0"
   },
