@@ -4,7 +4,7 @@ import { Menu } from "../components/Menu";
 import Container from "react-bootstrap/esm/Container"
 import Table from 'react-bootstrap/Table'
 import { CustomTable } from "../components/CustomTable";
-import { Alert, Badge } from "react-bootstrap";
+import { Alert, Badge, Button } from "react-bootstrap";
 
 import axios from 'axios';
 import { useEffect, useState } from "react";
@@ -23,6 +23,7 @@ export const Environments = () => {
 
     // States 
     const [envData, setEnvData] = useState()
+    const [filterQuery, setFilterQuery] = useState()
 
     useEffect(() => {
         setInterval(() => axios.get("http://127.0.0.1:8000/api/envs").then(
@@ -32,6 +33,21 @@ export const Environments = () => {
         ), 500)
     });
 
+    // Hooks 
+    const setFilter = (e) => {
+        const textQuery = e.target.value; 
+        setFilterQuery(textQuery); 
+    }
+
+
+    const trainHandler = () => {
+        
+        axios.post("http://localhost:8000/train/start").then((e)=> {
+            console.log(e); 
+        }).catch((e)=>{
+            alert("none")
+        }).finally(console.log("enf"))
+    }
 
     return (
         <Row className=" position-absolute" style={{ height: "100%", width: "100%" }} noGutters={true}>
@@ -52,16 +68,18 @@ export const Environments = () => {
 
                         {/* Search Bar  */}
                         <div className="d-flex">
-                            <input type="text" name="" placeholder="search" className="w-25" id="" />
+                            <input type="text" name="" placeholder="search" className="w-25" id="" onChange={ setFilter }/>
                         </div>
                     </article>
 
                     {envData ? <div className="">
-                        <CustomTable fields={ENVS_TABLE_FIELDS} data={ envData } />
+                        <CustomTable fields={ENVS_TABLE_FIELDS} data={ envData } filterQuery = {filterQuery} />
                     </div> : "-"}
                 </Container>
-
+                <Button variant="success" onClick={ trainHandler }>Train</Button>{' '}
             </Col>
+            
+           
         </Row>
     )
 }

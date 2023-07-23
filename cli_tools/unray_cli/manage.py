@@ -18,7 +18,7 @@ import datetime;
  
 # ct stores current time
 
-
+from flask import Flask, jsonify, make_response
 from .utils import print_env_name
 from unray_bridge.train import train as training_epoch
 import sys
@@ -70,6 +70,14 @@ def get_current():
     with open(f'{DIR_PATH}/envs/database.json', 'r') as f:
         data = json.load(f)
     return jsonify(data['current-env'])
+
+@app.route('/train/start', methods=['POST'])
+@cross_origin()
+def start_train():
+    training_epoch(port=8000, ip = "127.0.0.1")
+    data = {'message': 'Done', 'code': 'SUCCESS'}
+    return make_response(jsonify(data), 201)
+    
 
 def start_server():
     """
