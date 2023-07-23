@@ -13,6 +13,11 @@
 """
 import argparse, os
 from os import environ
+# using datetime module
+import datetime;
+ 
+# ct stores current time
+
 
 from .utils import print_env_name
 from unray_bridge.train import train as training_epoch
@@ -31,9 +36,11 @@ url = f"http://{ip}:{port}"
 
 
 ## Global environment variables 
+
 DASHBOARD_DIR = os.environ["DASHBOARD_DIR"]
 DIR_PATH = os.environ["UNRAY_CONFIG_DIR"]
 
+## ======================================
 
 app = Flask(__name__, static_folder=f'{DASHBOARD_DIR}/build/static', template_folder=f"{DASHBOARD_DIR}/build")
 cors = CORS(app)
@@ -65,12 +72,14 @@ def get_current():
     return jsonify(data['current-env'])
 
 def start_server():
-    # server_address = (ip, port)
-    # httpd = HTTPServer(server_address, Handler)
-    # Get info 
+    """
+        Start Server 
+        ---
+        Get runnig the current flask app with the given routes specfied 
 
+
+    """
     app.run(port = 8000, host="0.0.0.0")
-    # httpd.serve_forever()
 
 
 def cli():
@@ -133,21 +142,6 @@ def cli():
     env = subparser.add_parser("env", help="environments tools")
     config = subparser.add_parser("config", help= "overall configuration tools")
     
-    
-    
-    
-
-    # Subparsers 
-    # init = init_subparser.add_subparsers("init", help="create info", description= "BE AWESOME")
-    # env = init_subparser.add_subparsers("env", help="create info", description= "BE AWESOME")
-    # init_subparser.add_subparsers("add-agent", help="create info", description= "BE AWESOME")
-    # init_subparser.add_subparsers("obs-order", help="create info", description= "BE AWESOME")
-    # init_subparser.add_subparsers("edit", help="create info", description= "BE AWESOME")
-    # init_subparser.add_subparsers("run", help="create info", description= "BE AWESOME")
-    # init_subparser.add_subparsers("cd", help="create info", description= "BE AWESOME")
-    # init_subparser.add_parser("config", help="create info", description= "BE AWESOME")
-    # init_subparser.add_parser("config", help="create info", description= "BE AWESOME")
-
 
     # Create env ---------------
     env_sp = env.add_subparsers(title="subcommands",
@@ -263,9 +257,6 @@ def cli():
                       separators=(',', ':'))
             
             
-            
-
-
     if "env:info:environment_name" in list(args_dict):
         print("available environments")
 
@@ -276,11 +267,16 @@ def cli():
         
         n = int(input("- Number of agents for the environment: "))
         print("")
+        agents_info = [] # array for agent data storage
+
         for agent in range(n): 
             print(f"> Agent-{agent + 1}")
-            agent_name = input("  - Agent name: ")
-            obs_order = input("  - Obs order: ")
-            can_see = input("  - Can see: ")
+            info = {}
+            info["agent_name"] = input("  - Agent name: ")
+            info["obs_order"] = input("  - Obs order: ")
+            info["can_see"] = input("  - Can see: ")
+            
+            agents_info.append(info) # Add new agent record 
 
         print("create environment with name: %s" % (args_dict["env:create:environment_name"]))
         DIR = environ.get('UNRAY_CONFIG_DIR')
@@ -288,12 +284,14 @@ def cli():
             data = json.load(f)
             print_env_name(data['envs'])
 
+        # Write into the JSON file 
+
         with open(f'{DIR}/envs/database.json', 'w') as json_file:
             data['envs'].append({
                 "name": args_dict['env:create:environment_name'],
-                "agents": [
-                    {"name": "hola"}
-                ]
+                "agents": agents_info,
+                "amountOfAgents": len(agents_info), 
+                "created_at": str(int(datetime.datetime.now().strftime("%s%f")) / 1000)
             })
 
             json.dump(data, json_file,

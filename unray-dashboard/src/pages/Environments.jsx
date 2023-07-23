@@ -13,11 +13,12 @@ export const Environments = () => {
     // Parameters 
     // TODO: If no param added just the label, the label will be used as the param to search. 
     const ENVS_TABLE_FIELDS = [
-        { "label": "ID", "param": "id" },
-        { "label": "Name", "param": "name" },
-        { "label": "Amount of Agents", "param": "amountOfAgents" },
-        { "label": "Created At", "param": "created_at" },
-        { "label": "Current", "param": "created_at" },
+        // { "label": "ID", "param": "id" },
+        { label: "Name", param: "name" },
+        { label: "Amount of Agents", param: "amountOfAgents" },
+        // { label: "Created At", param: "created_at", type: "dateTime"  },
+        { label: "Status", param: "status"},
+        // { "label": "Current", "param": "created_at" },
     ]
 
     // States 
@@ -56,7 +57,7 @@ export const Environments = () => {
                     </article>
 
                     {envData ? <div className="">
-                        <CustomTable fields={ENVS_TABLE_FIELDS} data={envData} />
+                        <CustomTable fields={ENVS_TABLE_FIELDS} data={ envData } />
                     </div> : "-"}
                 </Container>
 

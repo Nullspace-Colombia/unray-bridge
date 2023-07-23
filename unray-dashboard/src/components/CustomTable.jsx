@@ -29,7 +29,7 @@ export const CustomTable = (props) => {
     // Defined Functions 
     const getFields = () => {
         const fieldsElements = fields.map((e, idx) => {
-            return (<th className="text-start"> {e.label} </th>)
+            return (<th className={`text-start ${e.param == 'name' ? 'w-50' : ''}`}> {e.label} </th>)
         });
         return fieldsElements;
     }
@@ -37,7 +37,7 @@ export const CustomTable = (props) => {
     const getItems = () => {
         const itemsForList = data.map((e, idx) => {
             return (
-                <tr>
+                <tr key={idx}>
                     <td> <input type="checkbox" /></td>
                     {getFieldsForItem(e, idx)}
                 </tr>
@@ -46,12 +46,39 @@ export const CustomTable = (props) => {
         return itemsForList
     }
     const getFieldsForItem = (rowItem, itemId) => {
-        
-        console.log(rowItem)
-        const fieldsElements = fields.map((e, idx) => {
-            return (<td className="text-start">
-                { rowItem[e.param] || "-" }
-            </td>)
+
+        // Inner function 
+        const typeChecker = (objField) => {
+            if("type" in objField){
+                switch(objField["type"]){
+                    case "dateTime": 
+                        const date = new Date(rowItem[objField.param]); 
+                        const currentDate = new Date(Date.now()); 
+                        let result = new Date(date.getTime() - currentDate.getTime()); 
+
+                        return date.getDate()
+                        if(result.getMinutes() < 1){
+                            return "less than a minute"; 
+                        }if(result.getHours() < 1){
+                            return "less than an hour"; 
+                        }else{
+                            return `${result.getHours()} hours ago`
+                        }
+                    break; 
+                    default: 
+                        return "no"
+                    break; 
+                }
+            }else{
+                return rowItem[objField.param]; 
+            }
+        }
+        const fieldsElements = fields.map((objField, idx) => {
+            return (
+                <td className="text-start" key={idx}>
+                    { typeChecker(objField) || "-" }
+                </td>
+            )
         });
         return fieldsElements;
     }
