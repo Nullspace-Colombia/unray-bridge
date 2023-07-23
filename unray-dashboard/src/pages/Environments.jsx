@@ -16,15 +16,25 @@ export const Environments = () => {
         { "label": "ID", "param": "id" },
         { "label": "Name", "param": "name" },
         { "label": "Amount of Agents", "param": "amountOfAgents" },
+        { "label": "Created At", "param": "created_at" },
+        { "label": "Current", "param": "created_at" },
     ]
-    
+
     // States 
     const [envData, setEnvData] = useState()
 
     useEffect(() => {
         setInterval(() => axios.get("http://127.0.0.1:8000/api/envs").then(
             (res) => {
+                // console.log(res.data); 
+                // console.log(envData)
+                try {
+                    if (res.data.length != envData.length) {
+                        // alert("New data!");
+                    }
+                }catch{
 
+                }
                 setEnvData(res.data)
             }
         ), 500)
