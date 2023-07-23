@@ -26,15 +26,6 @@ export const Environments = () => {
     useEffect(() => {
         setInterval(() => axios.get("http://127.0.0.1:8000/api/envs").then(
             (res) => {
-                // console.log(res.data); 
-                // console.log(envData)
-                try {
-                    if (res.data.length != envData.length) {
-                        // alert("New data!");
-                    }
-                }catch{
-
-                }
                 setEnvData(res.data)
             }
         ), 500)
