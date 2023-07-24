@@ -115,7 +115,7 @@ src="https://raw.githubusercontent.com/sven1977/rllib_tutorials/8be6297fe1012ae9
 Img taken from https://github.com/sven1977/rllib_tutorials/blob/main/ray_summit_2021/tutorial_notebook.ipynb
 
 #### Understanding the environment
-As a Unray-bridge philosophy first we have to break down what the environment need. We have to agents that move in the same scenario, given by a 8x8 square grid. They can only move one no-diagonal square for each episode. (The reward system is defined in the image). 
+As a Unray-bridge philosophy first we have to break down what the environment need. We have two agents that move in the same scenario, given by a 8x8 square grid. They can only move one no-diagonal square for each episode. (The reward system is defined in the image). 
 
 Hence we got: 
 - **Agent 1 and 2 Observation:** MultiDiscrete([64])
