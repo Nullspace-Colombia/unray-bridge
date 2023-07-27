@@ -46,7 +46,7 @@ In this env, you have two agents competing in a single env.
 In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
-python main_local.py
+python main_multiagentArena.py
 ```
 
 If everything is correct, the agents will start to move. 
