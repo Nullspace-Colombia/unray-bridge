@@ -75,6 +75,7 @@ def get_current():
 @cross_origin()
 def start_train():
     training_epoch(port=8000, ip = "127.0.0.1")
+    print("Comenzar entrenamiento!")
     data = {'message': 'Done', 'code': 'SUCCESS'}
     return make_response(jsonify(data), 201)
     
@@ -140,8 +141,6 @@ def cli():
 
     train.add_argument("--port", help="Define the port for network connectoin")
     train.add_argument("--ip",  help="Define the ip for network connection")
-
-
 
 
     dashboard = subparser.add_parser("dashboard", help="crate a dashboard server")

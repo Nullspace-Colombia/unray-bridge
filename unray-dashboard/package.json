@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
+    "@faker-js/faker": "^8.0.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -42,6 +43,7 @@
     "react": "^18.2.0",
     "react-app-polyfill": "^3.0.0",
     "react-bootstrap": "^2.8.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
     "react-refresh": "^0.11.0",
@@ -86,6 +88,8 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@syncfusion/ej2-react-dropdowns": "^22.1.39",
     "axios": "^1.4.0",
+    "chart.js": "^4.3.2",
+    "faker": "^6.6.6",
     "file-loader": "^6.2.0"
   },
   "jest": {

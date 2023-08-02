@@ -1,7 +1,7 @@
 version: '0.1'
 services:
   cli-tools:
-    image: amoralesma/unray
+    image: devnullspace/unray
     network_mode: host
     container_name: unray
     stdin_open: true # docker run -i
@@ -9,10 +9,8 @@ services:
 
     
   dashboard:
-    image: amoralesma/unray
+    image: devnullspace/unray
     container_name: unray-dashboard
     ports:
       - 8000:8000
     entrypoint: ["unray", "dashboard"]
-      
-  
