@@ -72,13 +72,14 @@ class BridgeEnv(gymEnv):
         self.validation = validation
         self.multiagent = multiagent 
 
-        self.obs = [0]
+        
         try: 
             self.observation_space = self.observation_config["space"] # Get imported space 
             self.action_space = self.action_config["space"]
         except: 
             raise ValueError("No correct space selected")
 
+        self.obs = self.observation_space.sample()
         # if first_connection:
         #     self.handler = ClientHandler(self.ip, self.port)
 
@@ -142,7 +143,7 @@ class BridgeEnv(gymEnv):
     
     def reset(self, *, seed=None, options=None):
         print('[OBS]:', self.get_amount_obs())
-        return np.zeros((self.get_amount_obs(),), dtype = np.double), {}
+        return np.asarray(self.obs, dtype=self.observation_space.dtype), {}
 
     def get_multiagent_state_dict(received_vector: np.array): 
         state = {}
@@ -318,6 +319,16 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.multiagent = multiagent 
 
         # Rllib metadata
+        self.obs_space_dict = self.get_dict_template()
+        self.act_space_dict = self.get_dict_template()
+        
+        for idx, agent in enumerate(self.agents_names):
+            self.obs_space_dict[agent] = config[self.agents_names[idx]]['observation']
+            self.act_space_dict[agent] = config[self.agents_names[idx]]['action']  
+
+        #print("-------------")  
+        #print(self.act_space_dict)
+        #print("-------")
         self.observation_space = config[self.agents_names[0]]['observation']
         self.action_space = config[self.agents_names[0]]['action']
 
@@ -333,7 +344,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         print(self.heads_reference)
 
 
-        self.obs = [0]
+        self.obs_dict = self.get_dict_template()
+        for agent in self.agents_names:
+            self.obs_dict[agent] = self.obs_space_dict[agent].sample()
 
         self.create_handler()
 
@@ -418,7 +431,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         else:
             assert "No valid action type. Only supports <list> or <numpy.ndarray> given %s" % (type(action))
         
-        obs = self.obs 
+        obs = self.obs_dict 
+
 
         #terminated = self.check_termination(obs) # Check for validation to continue 
         #action = np.insert(action, 0, np.single(terminated))
@@ -505,11 +519,12 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
             reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
             done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
-            if done_dict[agent] == False:
-                obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
-            else:
-                del obs_dict[agent]
-                del done_dict[agent]
+            #if done_dict[agent] == False:
+            #obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
+            obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
+            #else:
+            #    del obs_dict[agent]
+            #    del done_dict[agent]
             truncated_dict[agent] = False
             if agent in done_dict:
                 all_done = all_done and done_dict[agent]
@@ -541,7 +556,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         truncated_dict["__all__"] = False 
 
         # create dictionary 
-        self.obs = obs_dict
+        self.obs_dict = obs_dict
 
         info = {}
 
@@ -564,10 +579,11 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         """
         print('[RESETTING]')
-        print('[OBS]:', self.obs)
+        print('[OBS]:', self.obs_dict)
         obs_dict = self.get_dict_template() # from agents names 
         for agent in obs_dict:
-            obs_dict[agent] = np.array([0, 0])
+            #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
+            obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
         print("- Obs_dict: ")
         print(obs_dict)
         return obs_dict, {}
