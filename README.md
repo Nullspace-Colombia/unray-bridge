@@ -29,7 +29,7 @@ There are currently two examples ready for you to run.
 
 ![Cartpole](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/93e9492e-695b-4bef-ab32-8182e62bf40e)
 
-In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the examples folder run:
+In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
 python main_cartpole.py
@@ -43,7 +43,7 @@ If everything is correct, the cartpole will start to move.
 
 In this env, you have two agents competing in a single env. 
 
-In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the examples folder run:
+In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
 python main_multiagentArena.py
