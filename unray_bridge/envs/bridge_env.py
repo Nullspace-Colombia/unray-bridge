@@ -515,7 +515,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             for observation_check_agent in list(self.config[agent]['obs_order']):
                 for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
                     print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
-                    obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
+                    obs_dict_arr.append(state[self.heads_reference[observation_check_agent] + idx_observation_check_agent])
             
             reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
             done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
