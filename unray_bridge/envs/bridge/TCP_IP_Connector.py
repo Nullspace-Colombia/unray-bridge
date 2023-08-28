@@ -68,11 +68,11 @@ class ClientHandler():
     def send(self, msg, __BUFFER_DATA_SIZE = 32):
         if not self.connected:
             assert "No server connection. Please check"
-        print("[ SEND ]", end = " ")
+        # print("[ SEND ]", end = " ")
         #data_size = len(msg)
         #data_sent = b''
         self.sock.send(msg)
-        print(msg)
+        # print(msg)
         
     
     def recv(self, expected_bytes):
@@ -99,8 +99,8 @@ class ClientHandler():
             self.sock.setblocking(False)
         #print(res)
         respuesta = np.frombuffer(res, dtype=np.double)
-        print("[ RECV ]", end = " " )   
-        print(respuesta)
+        # print("[ RECV ]", end = " " )   
+        # print(respuesta)
 
         return respuesta 
         

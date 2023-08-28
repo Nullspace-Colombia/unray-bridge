@@ -105,8 +105,8 @@ class BridgeEnv(gymEnv):
         #terminated = self.check_termination(obs) # Check for validation to continue 
         #action = np.insert(action, 0, np.single(terminated))
         
-        print('[ACTION]', end=" ")
-        print(action)
+        # print('[ACTION]', end=" ")
+        # print(action)
 
         # 2. Cast the action vector to a byte buffer for send.
         action_buff = action.tobytes()
@@ -137,12 +137,11 @@ class BridgeEnv(gymEnv):
         # Additional metadata [ignore ]
         truncated = False
         info = {}
-
         return obs, reward, terminated, truncated, info
 
     
     def reset(self, *, seed=None, options=None):
-        print('[OBS]:', self.get_amount_obs())
+        # print('[OBS]:', self.get_amount_obs())
         return np.asarray(self.obs, dtype=self.observation_space.dtype), {}
 
     def get_multiagent_state_dict(received_vector: np.array): 
