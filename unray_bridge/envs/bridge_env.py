@@ -336,7 +336,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         for idx, agent in enumerate(self.agents_names):
             print(self.config[agent])
-            self.heads_reference[agent] = 1 if idx == 0 else self.heads_reference[prev_agent] + 3 + self.config[agent]['can_show']
+            self.heads_reference[agent] = 1 if idx == 0 else self.heads_reference[prev_agent] + 3 + self.config[prev_agent]['can_show']
             prev_agent = agent
 
         print("Heads reference: ", end = "") 
