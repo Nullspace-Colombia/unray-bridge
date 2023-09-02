@@ -341,13 +341,19 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         print("Heads reference: ", end = "") 
         print(self.heads_reference)
-
-
-        self.obs_dict = self.get_dict_template()
-        for agent in self.agents_names:
-            self.obs_dict[agent] = self.obs_space_dict[agent].sample()
-
+        
         self.create_handler()
+        self.obs_dict = self.get_dict_template()
+        self.dummy_action = self.get_dict_template()
+        
+        for agent in self.agents_names:
+            #print(f"{agent} ==== {self.act_space_dict[agent]}")
+            #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
+            self.dummy_action[agent] = self.act_space_dict[agent].sample()
+        print(self.dummy_action)
+        self.obs_dict, self.reward_dict, self.done_dict, self.truncated_dict, self.info = self.step(self.dummy_action)
+
+        
 
     def get_amount_agents(self) -> int: 
         """
