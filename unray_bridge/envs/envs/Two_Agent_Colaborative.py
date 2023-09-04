@@ -37,29 +37,28 @@ class TwoAgentColaborative(MultiAgentEnv):
 
 
 #observations are traces and the position of the agent
-no_of_traces = 6
 high = np.array(
-            [3000]*(no_of_traces+1),
+            [3000]*19,
             dtype=np.float32,
         )
 # actions are  : moving (X,Y, Rot Z, jump) and grab
 env_config  = {
     "agent-1":{
         "observation": BridgeSpaces.Box(-high, high),
-        "action": BridgeSpaces.Discrete(5),
-        "can_show": 6, 
-        "can_see": 6, 
+        "action": BridgeSpaces.Discrete(6),
+        "can_show": 19, 
+        "can_see": 19, 
         "obs_order": {   
-            "agent-1": [i for i in range(6)], 
+            "agent-1": [i for i in range(19)], 
             "agent-2": []}
     }, 
     "agent-2":{
         "observation":BridgeSpaces.Box(-high, high),
-        "action":BridgeSpaces.Discrete(5),
-        "can_show": 6, # Amount of observations int obs stack
-        "can_see": 6, # Amount of observations required in training 
+        "action":BridgeSpaces.Discrete(6),
+        "can_show": 19, # Amount of observations int obs stack
+        "can_see": 19, # Amount of observations required in training 
         "obs_order": { 
-            "agent-2": [i for i in range(6)],  
+            "agent-2": [i for i in range(19)],  
             "agent-1": []
             }
     }

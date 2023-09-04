@@ -408,8 +408,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             - action (dict): 
         
         """
-        print(f"[ACTIONS]:{actions}")
-        print(f"[AGENTS]:{self.agents_names}")
+        # print(f"[ACTIONS]:{actions}")
+        # print(f"[AGENTS]:{self.agents_names}")
         """
         if not self.validate_actions_dict(actions):
             
@@ -418,7 +418,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         if not self.has_connection:
             self.connect()
 
-        print(actions)
+        # print(actions)
 
         # create format 
         action2send = []
@@ -442,15 +442,15 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         #terminated = self.check_termination(obs) # Check for validation to continue 
         #action = np.insert(action, 0, np.single(terminated))
         
-        print('[ACTION]', end=" ")
-        print(action)
+        # print('[ACTION]', end=" ")
+        # print(action)
         
 
         total_obs_size = 0 # sizes 
         total_obs = []
         agents = self.observations.keys() # agents names
-        print("agents:", end = " ") 
-        print(agents) 
+        # print("agents:", end = " ") 
+        # print(agents) 
 
         can_sees_total = []
         order_observations = []
@@ -519,7 +519,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             obs_dict_arr = []
             for observation_check_agent in list(self.config[agent]['obs_order']):
                 for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
-                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
+                    # print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
                     obs_dict_arr.append(state[self.heads_reference[observation_check_agent] + idx_observation_check_agent])
             
             reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
@@ -566,14 +566,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         info = {}
 
         print(" Dicts ")
-        print("-obs: ")
-        print(obs_dict, end = "\n \n")
-        print("-reward: ")
-        print(reward_dict, end = "\n \n")
+        # print("-obs: ")
+        # print(obs_dict, end = "\n \n")
+        # print("-reward: ")
+        # print(reward_dict, end = "\n \n")
         print("-done: ")
         print(done_dict, end = "\n \n")
-        print("-truncated: ")
-        print(truncated_dict, end = "\n \n")
+        # print("-truncated: ")
+        # print(truncated_dict, end = "\n \n")
         return obs_dict, reward_dict, done_dict, truncated_dict, info
     
 
