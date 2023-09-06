@@ -1,12 +1,12 @@
 from unray_bridge.envs.envs import MultiAgentArena
-from unray_bridge.envs.envs import CartPole
+from unray_bridge.envs.envs import two_agents_test
 from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
 if __name__ == '__main__':
-    register_env('cartpole', CartPole.get_env())
+    register_env('cartpole', two_agents_test.get_env())
 
     config = PPOConfig()
 
