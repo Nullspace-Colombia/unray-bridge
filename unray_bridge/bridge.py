@@ -36,7 +36,11 @@ class Bridge():
             Llamado desde cada entorno para apilar el vector de 
             acciones antes del envio (Paralelizacion)
         """
-        self.action_dict_2_send[str(env_ID)] = action
+
+        if len(self.action_dict_2_send.keys()) >= self.n_evs:
+            self.send_actions() 
+        else: 
+            self.action_dict_2_send[str(env_ID)] = action
         # self.send_actions()
 
     def send_actions(self):
