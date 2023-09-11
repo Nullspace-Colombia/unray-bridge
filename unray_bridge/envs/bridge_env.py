@@ -500,19 +500,20 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         ##Paralell
         #self.handler.send(action_buff) # Send action an wait response 
-        self.bridge.set_actions(action)
+        self.bridge.set_actions(action, self.ID)
         print("[SETTING ACTIONS]")
         
         n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
-        data_size = self.to_byte(n_obs+self.get_amount_agents() * 3) # bytes from read 
+        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
         
         # calculate the size get the type of size 
         
 
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
-        state = self.bridge.get_state(self.ID, data_size)
+        state = self.bridge.get_state(self.ID)
+
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 

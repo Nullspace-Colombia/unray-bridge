@@ -12,8 +12,11 @@ class Bridge():
         self.sock = None
         self.MCE = MultiEnvCreator(env_config, amount_of_envs= n_envs)
         self.n_obs = self.get_nobs()
-        #self.data_handler = DataHandler()
+        self.n_evs = n_envs
 
+        self.action_dict_2_send = {}
+
+        #self.data_handler = DataHandler()
 
     def get_client_handler(self):
         return self.client_handler
@@ -26,18 +29,31 @@ class Bridge():
         self.client_handler.connect(sock)
         self.is_connected = True
 
-    def set_actions(self, action):
-        self.actions = action
-        self.send_actions()
+    def set_actions(self, action, env_ID):
+        """
+            Set actions 
+            ---
+            Llamado desde cada entorno para apilar el vector de 
+            acciones antes del envio (Paralelizacion)
+        """
+        self.action_dict_2_send[str(env_ID)] = action
+        # self.send_actions()
 
     def send_actions(self):
-        action_buff = self.actions.tobytes()
+        """
+            Buffer de Envio 
+        """
+        # Conversion de diccionario a buffer 
+        buffer2send = []
+        for key_id in range(self.n_evs):
+            buffer2send.extend(self.action_dict_2_send[str(key_id + 1)])
+            
+        # action_buff = self.actions.tobytes()
+        action_buff = buffer2send.tobytes()
         self.client_handler.send(action_buff, self.sock)
     
-    def get_state(self, ID, data_size):
-        self.data 
-        #self.state = self.recv_data(data_size)
-        return self.state
+    def get_state(self, ID):        
+        return self.select_obs_per_env(ID)
     
     def set_socket(self):
         sock = self.client_handler.set_socket()
@@ -47,9 +63,27 @@ class Bridge():
         return self.sock
 
     def recv_data(self):
+        """
+            Recive observaciones. TODO: Change name to recv_obs
+        """
         data_size = self.to_byte(self.n_obs+self.get_amount_agents() * 3) # bytes from read 
         self.data = self.client_handler.recv(data_size, self.sock)
         
+    def select_obs_per_env(self, env_id):
+        n_obs = self.get_nobs() / self.n_evs # check :v 
+        env_data = self.data[env_id * (n_obs - 1): env_id * n_obs - 1] # Porcion de observacion por entorno 
+        return env_data 
+
+    def get_amount_workers_active(self): 
+        return 3
+    
+ 
+    def get_nactions(self):
+        self.multienv_config = self.MCE.get_multienv_config_dict()
+        self.agents_names = list(self.multienv_config.keys())
+        n_actions = sum([self.multienv_config[agent]['action'].shape[0] for agent in self.multienv_config])
+        # estructura:   (id + obs + reward + done) * agente 
+        return n_actions
     
     def get_nobs(self):
         self.multienv_config = self.MCE.get_multienv_config_dict()

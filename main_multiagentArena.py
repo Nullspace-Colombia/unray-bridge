@@ -1,6 +1,7 @@
 from unray_bridge.envs.envs import MultiAgentArena
 from unray_bridge.envs.envs import CartPole
 from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
+from unray_bridge.bridge import Bridge
 
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
@@ -9,8 +10,12 @@ def get_ID(worker):
     return worker.env.get_ID()
 
 def set_ID(worker):
-    ID = worker.worker_index+1
+    ID = worker.worker_index + 1
     worker.env.set_ID(ID)
+
+def set_data(): 
+    pass 
+
 
 if __name__ == '__main__':
     register_env('multiagents-arena', MultiAgentArena.get_env(
@@ -32,6 +37,16 @@ if __name__ == '__main__':
     
     #algo.workers.foreach_worker()
     
+    NUM_ENVS = 2
+    ip = 'localhost'
+    port = 10011 
+    
+    env_config = MultiAgentArena.get_config()
+    bridge = Bridge(env_config, ip, port)
+
+    
+    
+
     
     #assign IDs for each env.
     print(f"[ADDING WORKERS]: {algo.workers.add_workers(2)}")
