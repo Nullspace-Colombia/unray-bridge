@@ -32,10 +32,18 @@ class ClientHandler():
         self.connected = False 
         self.ip = ip 
         self.port = port 
+        
+        
+    def set_socket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        return self.sock
+
+    def get_socket(self):
+        return self.sock
 
     
-    def connect(self): 
+    def connect(self, sock): 
+        
         server_address = (self.ip, self.port)
         print('[ CONNECTION ] connecting to {} port {}'.format(*server_address))
 
@@ -44,7 +52,7 @@ class ClientHandler():
         
         while not self.connected:
             try:
-                self.sock.connect(server_address)
+                sock.connect(server_address)
                 self.connected = True 
             except: 
                 count += 1
@@ -54,6 +62,7 @@ class ClientHandler():
                     if group_count % 5 == 0: 
                         
                         break 
+            return sock
 
         if not self.connected: 
             print("Connection Timeout!")          
@@ -65,17 +74,17 @@ class ClientHandler():
         
         
 
-    def send(self, msg, __BUFFER_DATA_SIZE = 32):
+    def send(self, msg, sock,  __BUFFER_DATA_SIZE = 32):
         if not self.connected:
             assert "No server connection. Please check"
         print("[ SEND ]", end = " ")
         #data_size = len(msg)
         #data_sent = b''
-        self.sock.send(msg)
+        sock.send(msg)
         print(msg)
         
     
-    def recv(self, expected_bytes):
+    def recv(self, expected_bytes, sock):
         
         res = b''
         #respuesta = np.emtpy(1, dtype=np.single)
@@ -84,7 +93,7 @@ class ClientHandler():
        
         try:
             while len(res) < expected_bytes:
-                nuevos_datos = self.sock.recv(expected_bytes - len(res))
+                nuevos_datos = sock.recv(expected_bytes - len(res))
                 if not nuevos_datos:
                     # Handle disconnection
                     break    
@@ -96,7 +105,7 @@ class ClientHandler():
             #print(respuesta)
             #respuesta = np.append(np.frombuffer(nuevos_datos, dtype=np.single))       
         finally:
-            self.sock.setblocking(False)
+            sock.setblocking(False)
         #print(res)
         respuesta = np.frombuffer(res, dtype=np.double)
         print("[ RECV ]", end = " " )   
@@ -106,10 +115,10 @@ class ClientHandler():
         
 
 
-    def close(self): 
+    def close(self, sock): 
         print("Closing connection...")
         self.connected = False
-        self.sock.close()
+        sock.close()
         print("Connection closed! Bye.")
 
 

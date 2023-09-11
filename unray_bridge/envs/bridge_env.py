@@ -15,7 +15,7 @@
     environments and createa (MultiAgent)BridgeEnv instance 
     with a initial configuration. 
 
-    You ahve to define a observation_space and actions_space from 
+    You have to define a observation_space and actions_space from 
     BridgeSpaces (@see unray_bridge.envs.spaces).
 
     @author Valentina Hernandez
@@ -31,6 +31,7 @@ from unray_bridge.envs.spaces import BridgeSpaces
 from unray_bridge import gui 
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
+from unray_bridge.bridge import Bridge
 
 import gymnasium.spaces as spaces
 import numpy as np
@@ -270,7 +271,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  first_connection = False, 
                  validation = False, 
                  multiagent = False, 
-                 show_gui = True):
+                 show_gui = True,
+                 #Paralell
+                 bridge = None,
+                 ID = int):
         
         # gui 
         if show_gui:
@@ -278,7 +282,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
-        
+
+
         if not name:
             print("error")
             raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
@@ -343,16 +348,23 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         print("Heads reference: ", end = "") 
         print(self.heads_reference)
         
-        self.create_handler()
+        ## Paralell
+        #self.create_handler()
+        ## paralell
+        self.ID = ID
+        self.bridge = bridge
+        if self.bridge is None:
+            self.bridge = Bridge(self.ip, self.port)
+        self.has_connection = True
+        self.has_handler = True
+        #self.data_handler = self.bridge.get_data_handler()
+
         self.obs_dict = self.get_dict_template()
         self.dummy_action = self.get_dict_template()
+        #if not self.bridge.has_socket():
+        #    self.bridge.set_socket()
         
-        for agent in self.agents_names:
-            #print(f"{agent} ==== {self.act_space_dict[agent]}")
-            #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
-            self.dummy_action[agent] = self.act_space_dict[agent].sample()
-        print(self.dummy_action)
-        self.obs_dict, self.reward_dict, self.done_dict, self.truncated_dict, self.info = self.step(self.dummy_action)
+        
 
         
 
@@ -416,8 +428,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
             raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
         """
-        if not self.has_connection:
-            self.connect()
+        # Paralell
+        
 
         print(actions)
 
@@ -482,10 +494,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         # print(self.get_dict_template())
 
         # 2. Cast the action vector to a byte buffer for send.
-        action_buff = action.tobytes()
+        #action_buff = action.tobytes()
         # n = self.get_amount_obs()
         # 3. Send the action vector to the environment. 
-        self.handler.send(action_buff) # Send action an wait response 
+        
+        ##Paralell
+        #self.handler.send(action_buff) # Send action an wait response 
+        self.bridge.set_actions(action)
+        print("[SETTING ACTIONS]")
         
         n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
@@ -493,7 +509,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         # calculate the size get the type of size 
         
-        state = self.handler.recv(data_size) # Get state vetor 
+
+        ##Paralell
+        #state = self.handler.recv(data_size) # Get state vetor 
+        state = self.bridge.get_state(self.ID, data_size)
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 
@@ -584,20 +603,39 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             ---
 
         """
-        print('[RESETTING]')
-        print('[OBS]:', self.obs_dict)
-        obs_dict = self.get_dict_template() # from agents names 
-        for agent in obs_dict:
+        if self.dummy_action[self.agents_names[0]] == '':
+            for agent in self.agents_names:
+            #print(f"{agent} ==== {self.act_space_dict[agent]}")
             #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
-            obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
-        print("- Obs_dict: ")
-        print(obs_dict)
+                self.dummy_action[agent] = self.act_space_dict[agent].sample()
+            print(self.dummy_action)
+            obs_dict, self.reward_dict, self.done_dict, self.truncated_dict, self.info = self.step(self.dummy_action)
+        else:
+            print('[RESETTING]')
+            print('[OBS]:', self.obs_dict)
+            obs_dict = self.get_dict_template() # from agents names 
+            for agent in obs_dict:
+                #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
+                obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
+            print("- Obs_dict: ")
+            print(obs_dict)
         return obs_dict, {}
-
-
-
     
+    def create_handler(self): 
+        self.handler = ClientHandler(self.ip, self.port) # Create a Handler 
+        self.has_handler = True 
 
+    def set_socket(self):
+        self.sock = self.bridge.get_socket()
+
+    def set_bridge(self, bridge):
+        self.bridge = bridge
+
+    def set_ID(self, ID):
+        self.ID = ID
+    
+    def get_ID(self):
+        return self.ID
 
 
 
