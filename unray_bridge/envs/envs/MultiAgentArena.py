@@ -31,7 +31,7 @@ env_config  = {
 def get_config():
     return env_config
 
-def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1, bridge = None, ID = 1):
+def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1, env_bridge = None, ID = 1):
     if amount_of_envs > 1:
         MCE = MultiEnvCreator(get_config(), amount_of_envs= amount_of_envs )
         env_config = MCE.get_multienv_config_dict()
@@ -45,7 +45,6 @@ def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1
         port = _port,
         config = env_config,
         first_connection = False,
-        bridge = bridge,
         ID = ID
     )
 
@@ -55,6 +54,5 @@ def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1
         port = _port,
         config = env_config,
         first_connection = False,
-        bridge = bridge,
         ID = ID
     )

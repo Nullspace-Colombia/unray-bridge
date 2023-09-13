@@ -28,7 +28,6 @@
 """
 from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
-from unray_bridge import gui 
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from unray_bridge.bridge import Bridge
@@ -271,18 +270,16 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  first_connection = False, 
                  validation = False, 
                  multiagent = False, 
-                 show_gui = True,
                  #Paralell
-                 bridge = None,
                  ID = int):
         
         # gui 
-        if show_gui:
-            gui.print_title()
+        
 
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
-
+        #self.bridge = env_bridge
+        
 
         if not name:
             print("error")
@@ -307,6 +304,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         self.agents_names = list(config.keys())
         print(f"Agents: {self.agents_names}")
+        #print(f"ID: {self.ID}")
 
         # print("Multiagent params --")
         # print(" - Agent names: {}".format(self.agent_names))
@@ -345,16 +343,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             self.heads_reference[agent] = 1 if idx == 0 else self.heads_reference[prev_agent] + 3 + self.config[agent]['can_show']
             prev_agent = agent
 
-        print("Heads reference: ", end = "") 
-        print(self.heads_reference)
+        #print("Heads reference: ", end = "") 
+        #print(self.heads_reference)
         
         ## Paralell
         #self.create_handler()
         ## paralell
         self.ID = ID
-        self.bridge = bridge
-        if self.bridge is None:
-            self.bridge = Bridge(self.ip, self.port)
+
         self.has_connection = True
         self.has_handler = True
         #self.data_handler = self.bridge.get_data_handler()
@@ -500,20 +496,22 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         ##Paralell
         #self.handler.send(action_buff) # Send action an wait response 
-        self.bridge.set_actions(action, self.ID)
-        print("[SETTING ACTIONS]")
         
-        n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
+        self.bridge.set_actions(action, self.ID)
+       
+        #n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
-        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
+        #data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
         
         # calculate the size get the type of size 
         
+        while True:
+            if self.bridge.get_send_state()== True:
+                break
 
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
         state = self.bridge.get_state(self.ID)
-
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 
@@ -609,7 +607,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             #print(f"{agent} ==== {self.act_space_dict[agent]}")
             #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
                 self.dummy_action[agent] = self.act_space_dict[agent].sample()
-            print(self.dummy_action)
+            print(f"[DUMMY ACTION]: {self.dummy_action}")
             obs_dict, self.reward_dict, self.done_dict, self.truncated_dict, self.info = self.step(self.dummy_action)
         else:
             print('[RESETTING]')
@@ -626,11 +624,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.handler = ClientHandler(self.ip, self.port) # Create a Handler 
         self.has_handler = True 
 
-    def set_socket(self):
-        self.sock = self.bridge.get_socket()
-
-    def set_bridge(self, bridge):
-        self.bridge = bridge
+    def set_bridge(self, conn_bridge):
+        self.bridge = conn_bridge
+        print(f"---BRIDGE: {id(conn_bridge)}------")
 
     def set_ID(self, ID):
         self.ID = ID

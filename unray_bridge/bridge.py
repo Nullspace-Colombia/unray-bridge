@@ -1,25 +1,30 @@
 from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.multiagents_config import MultiEnvCreator
 #from data_handler import DataHandler
-
+import numpy as np
+from unray_bridge import gui 
 
 class Bridge():
-    def __init__(self, env_config, n_envs = 1, ip = 'localhost', port = 10010):
+    def __init__(self, env_config, n_envs = 1, ip = 'localhost', port = 10010, show_gui = True):
         self.ip = ip
         self.port = port
         self.client_handler = ClientHandler(self.ip, self.port)
         self.is_connected = False
         self.sock = None
-        self.MCE = MultiEnvCreator(env_config, amount_of_envs= n_envs)
+        self.n_envs = n_envs
+        self.MCE = MultiEnvCreator(env_config, amount_of_envs= self.n_envs)
         self.n_obs = self.get_nobs()
-        self.n_evs = n_envs
-
         self.action_dict_2_send = {}
-
+        self.send_state = False
+        
+        #if show_gui:
+            #gui.print_title()
+        print(f"---------[BRIDGE CREADO]---------------{id(self)}")
         #self.data_handler = DataHandler()
 
     def get_client_handler(self):
         return self.client_handler
+    
     
     def get_data_handler(self):
         return self.data_handler
@@ -36,28 +41,47 @@ class Bridge():
             Llamado desde cada entorno para apilar el vector de 
             acciones antes del envio (Paralelizacion)
         """
-
-        if len(self.action_dict_2_send.keys()) >= self.n_evs:
+        
+      
+        print(f"[SETTING ACTIONS]: ENV {env_ID}")
+        self.action_dict_2_send[str(env_ID)] = action
+        print(self.action_dict_2_send)
+        print(f"[# ACTIONS]: {len(self.action_dict_2_send.keys())}")
+        if len(self.action_dict_2_send.keys()) >= self.n_envs:
+            print(f"[SENDING ACTIONS]")
             self.send_actions() 
-        else: 
-            self.action_dict_2_send[str(env_ID)] = action
+            self.send_state = True
+        else:
+            self.send_state = False
+        
+            
         # self.send_actions()
-
+    def get_send_state(self):
+        return self.send_state
+    
     def send_actions(self):
         """
             Buffer de Envio 
         """
         # Conversion de diccionario a buffer 
         buffer2send = []
-        for key_id in range(self.n_evs):
+        for key_id in range(self.n_envs):
             buffer2send.extend(self.action_dict_2_send[str(key_id + 1)])
             
         # action_buff = self.actions.tobytes()
-        action_buff = buffer2send.tobytes()
+        action_buff = np.asarray(buffer2send, dtype = np.single).tobytes()
         self.client_handler.send(action_buff, self.sock)
+        print("RECEIVING DATA")
+        self.recv_data()
+        print("DATA RECEIVED")
     
-    def get_state(self, ID):        
-        return self.select_obs_per_env(ID)
+    def get_state(self, env_id):  
+        print(f"[GETTING STATE]: {self.data}")
+        num_obs = self.to_byte(self.get_nobs()+self.get_amount_agents() * 3)
+        n_obs = num_obs // self.n_envs # check :v 
+        env_data = self.data[(env_id - 1)* n_obs: env_id * n_obs - 1] # Porcion de observacion por entorno 
+        print(f"[ENV DATA]: {env_data}")
+        return env_data
     
     def set_socket(self):
         sock = self.client_handler.set_socket()
@@ -70,12 +94,17 @@ class Bridge():
         """
             Recive observaciones. TODO: Change name to recv_obs
         """
+        
         data_size = self.to_byte(self.n_obs+self.get_amount_agents() * 3) # bytes from read 
         self.data = self.client_handler.recv(data_size, self.sock)
+        print(f"[DATA]: {self.data}")
         
     def select_obs_per_env(self, env_id):
-        n_obs = self.get_nobs() / self.n_evs # check :v 
+        print(f"[GETTING STATE]: {self.data}")
+        num_obs = self.to_byte(self.get_nobs()+self.get_amount_agents() * 3)
+        n_obs = num_obs // self.n_envs # check :v 
         env_data = self.data[env_id * (n_obs - 1): env_id * n_obs - 1] # Porcion de observacion por entorno 
+        
         return env_data 
 
     def get_amount_workers_active(self): 
@@ -93,6 +122,7 @@ class Bridge():
         self.multienv_config = self.MCE.get_multienv_config_dict()
         self.agents_names = list(self.multienv_config.keys())
         n_obs = sum([self.multienv_config[agent]['can_show'] for agent in self.multienv_config])
+        
         # estructura:   (id + obs + reward + done) * agente 
         return n_obs 
         
