@@ -3,7 +3,9 @@ from unray_bridge.multiagents_config import MultiEnvCreator
 #from data_handler import DataHandler
 import numpy as np
 from unray_bridge import gui 
+import ray
 
+@ray.remote
 class Bridge():
     def __init__(self, env_config, n_envs = 1, ip = 'localhost', port = 10010, show_gui = True):
         self.ip = ip
