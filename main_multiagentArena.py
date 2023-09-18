@@ -82,10 +82,8 @@ if __name__ == '__main__':
     print(f"WORKERS: {algo.workers.remote_workers()}")
     
     con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
-    # algo.workers.foreach_worker(set_bridge)
+    algo.workers.foreach_worker(set_bridge)
 
-    for r_worker in algo.workers.remote_workers(): 
-        r_worker.env.remote(con_bridge)
         
 
     #algo.workers.local_worker().env.set_bridge(con_bridge)
