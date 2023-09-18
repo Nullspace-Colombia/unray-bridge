@@ -23,16 +23,18 @@ def set_data():
 def get_worker_host(worker):
     return worker.get_host()
 
-def set_bridge(worker):
-    bridge_env_t = con_bridge
-    print(f"[SETTING BRIDGE {id(bridge_env_t)} FOR ENV : {worker.env.get_ID()}")
-    worker.env.set_bridge(bridge_env_t)
+@ray.remote
+def set_bridge(env):
+   # print(f"[SETTING BRIDGE {id(bridge)} FOR ENV ")
+    env.set_bridge(con_bridge)
+    
 
 def print_IDS(worker):
     print(worker.worker_index)
 
 if __name__ == '__main__':
 
+    ray.init()
     ip = 'localhost'
     port = 10011
     env_config = MultiAgentArena.get_config()
@@ -84,22 +86,21 @@ if __name__ == '__main__':
     con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
     algo.workers.foreach_worker(set_bridge)
 
+    print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
         
 
     #algo.workers.local_worker().env.set_bridge(con_bridge)
     #algo.workers.foreach_env(set_bridge)
     
-    
-    con_bridge.set_socket()
-    sock = con_bridge.get_socket()
-        
-    con_bridge.start(sock) # Begin Connection
+    print("UWU")
+    sock = con_bridge.set_socket.remote()
+    print("UWUNT")
+    con_bridge.start.remote(sock) # Begin Connection
     
 
     for i in range(2):
         print("training")
         result = algo.train()
-        print(f"[WORKER IDS]: {algo.workers.foreach_worker(print_IDS)}")
         print(f"train {i}")
     print(result['episode_reward_mean'])
 
