@@ -271,7 +271,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  validation = False, 
                  multiagent = False, 
                  #Paralell
-                 ID = int):
+                 ID = int,
+                 bridge= None):
         
         # gui 
         
@@ -279,7 +280,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         #self.bridge = env_bridge
-        
+        if bridge is not None:
+            self.bridge = bridge
+            print(f"---------- BRIDGE: {id(self.bridge)}------------")
 
         if not name:
             print("error")

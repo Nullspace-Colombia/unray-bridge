@@ -84,11 +84,14 @@ class Bridge():
         return env_data
     
     def set_socket(self):
-        sock = self.client_handler.set_socket()
-        return sock
+        self.client_handler.set_socket()
+        self.sock = self.client_handler.get_socket()
+       
         
     def get_socket(self):
         return self.sock
+    
+    
 
     def recv_data(self):
         """

@@ -45,7 +45,8 @@ def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1
         port = _port,
         config = env_config,
         first_connection = False,
-        ID = ID
+        ID = ID,
+        bridge= env_bridge
     )
 
     return lambda config: MultiAgentBridgeEnv(
@@ -54,5 +55,6 @@ def get_env(_ip = 'localhost', _port=10011, instance = False, amount_of_envs = 1
         port = _port,
         config = env_config,
         first_connection = False,
-        ID = ID
+        ID = ID,
+        bridge=env_bridge
     )

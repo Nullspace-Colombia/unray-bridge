@@ -7,9 +7,12 @@ from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 from unray_bridge.bridge import Bridge
 from ray.rllib.algorithms.ppo import PPOConfig
 
+
+
+
 class UnrayTrainer():
     def __init__(self):
-        self.con_bridge = None
+        
         print("____________[TRAINER CREADO]___________-")
         
     def get_ID(self, worker):
@@ -19,13 +22,13 @@ class UnrayTrainer():
         ID = worker.worker_index + 1
         worker.env.set_ID(ID)
 
-    def set_bridge(self, worker):
+    def set_worker_bridge(self, worker):
         bridge_t = self.con_bridge
         print(f"[SETTING BRIDGE {id(bridge_t)} FOR WORKER : {worker.env.get_ID()}")
         
         worker.env.set_bridge(bridge_t)
 
-    def train(self, config, env, env_name, ip = 'localhost', port = 10011):
+    def configure_algo(self, config, env_t, env_name, ip = 'localhost', port = 10011):
 
         if config.num_rollout_workers > 0:
             n_workers = config.num_rollout_workers
@@ -37,9 +40,9 @@ class UnrayTrainer():
         print("[Bridge] Starting instance...")
 
         
-        self.con_bridge = Bridge(env.get_config(), n_envs, ip, port) # Bridge control 
+        #self.con_bridge = Bridge(env_t.get_config(), n_envs, ip, port) # Bridge control 
         
-        register_env(env_name, env.get_env(
+        register_env(env_name, env_t.get_env(
             amount_of_envs= 1
         ))
         print("[Bridge] Created!")
@@ -66,7 +69,7 @@ class UnrayTrainer():
         if algo.workers.num_remote_workers() > 0:
             print("[SETTING BRIDGE FOR WORKERS]")
             print(f".................[BRIDGE]: {id(self.con_bridge)}.............")
-            algo.workers.foreach_worker(self.set_bridge)
+            algo.workers.foreach_worker(self.set_worker_bridge)
             
         else:
             algo.workers.local_worker().env.set_bridge(self.con_bridge)

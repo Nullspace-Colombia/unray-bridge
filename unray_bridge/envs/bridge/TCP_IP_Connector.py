@@ -32,11 +32,12 @@ class ClientHandler():
         self.connected = False 
         self.ip = ip 
         self.port = port 
+        self.socket_args = {'family': socket.AF_INET, 'type': socket.SOCK_STREAM}
+        self.client_dictionary = self.socket_args
         
         
     def set_socket(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        return self.sock
+        self.sock = socket.socket(**self.socket_args)
 
     def get_socket(self):
         return self.sock
