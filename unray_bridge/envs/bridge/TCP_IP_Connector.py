@@ -16,10 +16,16 @@
     =====================================================
 """
 import socket, sys
+from typing import Any
 import numpy as np
 
 
+class mySocket(socket.socket):
+    def __init__(self):
+        super().__init__(socket.AF_INET, socket.SOCK_STREAM)
 
+    def __reduce__(self):
+        return (self.__class__, socket.AF_INET, socket.SOCK_STREAM)
 
 
 class ClientHandler():
@@ -32,10 +38,14 @@ class ClientHandler():
         self.connected = False 
         self.ip = ip 
         self.port = port 
+
+    
+        
         
         
     def set_socket(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self.sock/= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = mySocket() # :V
         return self.sock
 
     def get_socket(self):
