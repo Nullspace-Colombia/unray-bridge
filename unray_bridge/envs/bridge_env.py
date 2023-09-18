@@ -31,7 +31,7 @@ from unray_bridge.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from unray_bridge.bridge import Bridge
-
+import ray
 import gymnasium.spaces as spaces
 import numpy as np
 
@@ -500,7 +500,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         ##Paralell
         #self.handler.send(action_buff) # Send action an wait response 
         
-        self.bridge.set_actions(action, self.ID)
+        self.bridge.set_actions.remote(action, self.ID)
        
         #n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
@@ -509,12 +509,12 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         # calculate the size get the type of size 
         
         while True:
-            if self.bridge.get_send_state()== True:
+            if self.bridge.get_send_state.remote()== True:
                 break
 
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
-        state = self.bridge.get_state(self.ID)
+        state = self.bridge.get_state.remote(self.ID)
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 
@@ -629,7 +629,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
     def set_bridge(self, conn_bridge):
         self.bridge = conn_bridge
-        print(f"---BRIDGE: {id(conn_bridge)}------")
+        print(f"-------BRIDGE: {id(conn_bridge)}------------")
+        return id(conn_bridge)
 
     def set_ID(self, ID):
         self.ID = ID

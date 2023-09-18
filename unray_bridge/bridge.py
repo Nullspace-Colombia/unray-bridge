@@ -12,7 +12,7 @@ class Bridge():
         self.port = port
         self.client_handler = ClientHandler(self.ip, self.port)
         self.is_connected = False
-        self.sock = None
+        self.consock = None
         self.n_envs = n_envs
         self.MCE = MultiEnvCreator(env_config, amount_of_envs= self.n_envs)
         self.n_obs = self.get_nobs()
@@ -31,9 +31,15 @@ class Bridge():
     def get_data_handler(self):
         return self.data_handler
     
-    def start(self, sock):
-        self.sock = sock
-        self.client_handler.connect(sock)
+    def start(self, conn_sock):
+        self.consock = conn_sock
+        print("[CONNECTING CLIENT]")
+        try:
+            self.client_handler.connect(self.consock)
+        except:
+            print("FAILED TO CONNECT CLIENT :(")
+        finally:
+            print("[CLIENT CONNECTED]")
         self.is_connected = True
 
     def set_actions(self, action, env_ID):
@@ -72,7 +78,7 @@ class Bridge():
             
         # action_buff = self.actions.tobytes()
         action_buff = np.asarray(buffer2send, dtype = np.single).tobytes()
-        self.client_handler.send(action_buff, self.sock)
+        self.client_handler.send(action_buff, self.consock)
         print("RECEIVING DATA")
         self.recv_data()
         print("DATA RECEIVED")
@@ -86,12 +92,16 @@ class Bridge():
         return env_data
     
     def set_socket(self):
-        self.client_handler.set_socket()
-        self.sock = self.client_handler.get_socket()
+        print("SETTING SOCKET")
+        try:
+            self.consock = self.client_handler.set_socket()
+        except:
+            print("COULDNT SET SOCKET :(")
+        return self.consock
        
         
     def get_socket(self):
-        return self.sock
+        return self.consock
     
     
 
@@ -101,7 +111,7 @@ class Bridge():
         """
         
         data_size = self.to_byte(self.n_obs+self.get_amount_agents() * 3) # bytes from read 
-        self.data = self.client_handler.recv(data_size, self.sock)
+        self.data = self.client_handler.recv(data_size, self.consock)
         print(f"[DATA]: {self.data}")
         
     def select_obs_per_env(self, env_id):
