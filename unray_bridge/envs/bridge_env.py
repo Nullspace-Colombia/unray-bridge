@@ -497,6 +497,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         # n = self.get_amount_obs()
         # 3. Send the action vector to the environment. 
         self.dummy_obs = self.get_dict_template()
+        self.dummy_dones = self.get_dict_template()
+        self.dummy_reward = self.get_dict_template()
+        self.dummy_truncated = self.get_dict_template()
         ##Paralell
         #self.handler.send(action_buff) # Send action an wait response 
         if self.reset_count == 0:
@@ -504,8 +507,11 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             #print(f"{agent} ==== {self.act_space_dict[agent]}")
             #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
                 self.dummy_obs[agent] = self.obs_space_dict[agent].sample()
+                self.dummy_dones[agent] = False
+                self.dummy_reward[agent] = 0
+                self.dummy_truncated[agent] = False
 
-           
+         
         else:
             self.bridge.set_actions.remote(action, self.ID)
             state_ray = self.bridge.get_state.remote(self.ID)
@@ -544,26 +550,31 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         head = 0
         heads = []
         
-
-        for agent in self.agents_names:
-            # amount of observations in the agent 
-            obs_dict_arr = []
-            for observation_check_agent in list(self.config[agent]['obs_order']):
-                for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
-                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
-                    obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
-            
-            reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
-            done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
-            #if done_dict[agent] == False:
-            #obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
-            obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
-            #else:
-            #    del obs_dict[agent]
-            #    del done_dict[agent]
-            truncated_dict[agent] = False
-            if agent in done_dict:
-                all_done = all_done and done_dict[agent]
+        if self.reset_count > 0:
+            for agent in self.agents_names:
+                # amount of observations in the agent 
+                obs_dict_arr = []
+                for observation_check_agent in list(self.config[agent]['obs_order']):
+                    for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
+                        print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
+                        obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
+                
+                reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
+                done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
+                #if done_dict[agent] == False:
+                #obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
+                obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
+                #else:
+                #    del obs_dict[agent]
+                #    del done_dict[agent]
+                truncated_dict[agent] = False
+                if agent in done_dict:
+                    all_done = all_done and done_dict[agent]
+        else:
+            obs_dict = self.dummy_obs
+            reward_dict = self.dummy_reward
+            done_dict = self.dummy_dones
+            truncated_dict = self.dummy_truncated
             
             
 
@@ -630,6 +641,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                 obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
             print("- Obs_dict: ")
             print(obs_dict)
+        self.reset_count = self.reset_count+1
         return obs_dict, {}
     
     def create_handler(self): 
