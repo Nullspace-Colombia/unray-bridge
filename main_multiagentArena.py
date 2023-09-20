@@ -7,8 +7,6 @@ import ray
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
-
-
 def get_ID(env):
     return env.get_ID()
 

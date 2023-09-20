@@ -3,6 +3,7 @@ from unray_bridge.multiagents_config import MultiEnvCreator
 #from data_handler import DataHandler
 import numpy as np
 from unray_bridge import gui 
+import threading
 import ray
 
 @ray.remote
@@ -19,6 +20,9 @@ class Bridge():
         self.action_dict_2_send = {}
         self.send_state = False
         
+        self.tick_count = 0
+        self.TICK_INTERVAL = 5 # segundos 
+        
         #if show_gui:
             #gui.print_title()
         print(f"---------[BRIDGE CREADO]---------------{id(self)}")
@@ -27,6 +31,12 @@ class Bridge():
     def get_client_handler(self):
         return self.client_handler
     
+    def clock_tick(self):
+        print("count: {}".format(self.count))
+        self.count = self.count + 1         
+        # self.send_actions()
+        threading.Timer(self.TICK_INTERVAL, self.clock_tick).start() # 
+        return 
     
     def get_data_handler(self):
         return self.data_handler
@@ -88,6 +98,7 @@ class Bridge():
         num_obs = self.to_byte(self.get_nobs()+self.get_amount_agents() * 3)
         n_obs = num_obs // self.n_envs # check :v 
         env_data = self.data[(env_id - 1)* n_obs: env_id * n_obs - 1] # Porcion de observacion por entorno 
+        
         print(f"[ENV DATA]: {env_data}")
         return env_data
     
