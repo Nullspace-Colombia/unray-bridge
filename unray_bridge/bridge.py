@@ -22,7 +22,7 @@ class Bridge():
         
         self.tick_count = 0
         self.TICK_INTERVAL = 5 # segundos 
-        
+        self.clock_tick()
         #if show_gui:
             #gui.print_title()
         print(f"---------[BRIDGE CREADO]---------------{id(self)}")
