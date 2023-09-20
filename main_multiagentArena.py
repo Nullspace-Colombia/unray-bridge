@@ -11,7 +11,7 @@ def get_ID(env):
     return env.get_ID()
 
 def set_ID(worker):
-    ID = worker.worker_index + 1
+    ID = worker.worker_index
     print(ID)
     worker.env.set_ID(ID)
     
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     print(f"WORKERS: {algo.workers.remote_workers()}")
     
     con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
-    algo.workers.foreach_worker(set_bridge)
+    #algo.workers.foreach_worker(set_bridge)
 
     print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
         
@@ -90,10 +90,10 @@ if __name__ == '__main__':
     #algo.workers.local_worker().env.set_bridge(con_bridge)
     #algo.workers.foreach_env(set_bridge)
     
-    print("UWU")
-    sock = con_bridge.set_socket.remote()
+    
+    #sock = con_bridge.set_socket.remote()
     print("UWUNT")
-    con_bridge.start.remote(sock) # Begin Connection
+    con_bridge.start.remote() # Begin Connection
     
 
     for i in range(2):
