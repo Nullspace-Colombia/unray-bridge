@@ -507,15 +507,16 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         #data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
         
         # calculate the size get the type of size 
-        
-        while self.bridge.get_send_state.remote()==False:
-            pass
+        """ 
+        while True:
             if self.bridge.get_send_state.remote()== True:
+                print("SENDINGGGGGGGGGGGGGGGGGG")
                 break
-
+        """       
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
-        state = self.bridge.get_state.remote(self.ID)
+        state_ray = self.bridge.get_state.remote(self.ID)
+        state = ray.get(state_ray)
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 

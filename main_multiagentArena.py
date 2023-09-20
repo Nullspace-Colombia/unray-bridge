@@ -92,7 +92,7 @@ if __name__ == '__main__':
     
     
     #sock = con_bridge.set_socket.remote()
-    print("UWUNT")
+    #print("UWUNT")
     con_bridge.start.remote() # Begin Connection
     
 
