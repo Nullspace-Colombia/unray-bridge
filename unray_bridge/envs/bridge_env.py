@@ -508,7 +508,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         # calculate the size get the type of size 
         
-        while True:
+        while self.bridge.get_send_state.remote()==False:
+            pass
             if self.bridge.get_send_state.remote()== True:
                 break
 

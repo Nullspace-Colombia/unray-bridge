@@ -17,8 +17,7 @@ class Bridge():
         self.MCE = MultiEnvCreator(env_config, amount_of_envs= self.n_envs)
         self.n_obs = self.get_nobs()
         self.action_dict_2_send = {}
-        self.send_state = False
-        
+        self.consock = self.client_handler.set_socket()
         #if show_gui:
             #gui.print_title()
         print(f"---------[BRIDGE CREADO]---------------{id(self)}")
@@ -31,16 +30,17 @@ class Bridge():
     def get_data_handler(self):
         return self.data_handler
     
-    def start(self, conn_sock):
-        self.consock = conn_sock
+    def start(self):
+        
+        print(f"SOCKET ID IN START {id(self.consock)}")
         print("[CONNECTING CLIENT]")
         try:
             self.client_handler.connect(self.consock)
+            print("[CLIENT CONNECTED]")
         except:
             print("FAILED TO CONNECT CLIENT :(")
-        finally:
-            print("[CLIENT CONNECTED]")
         self.is_connected = True
+        #self.consock = conn_sock
 
     def set_actions(self, action, env_ID):
         """
@@ -61,7 +61,7 @@ class Bridge():
             self.send_state = True
         else:
             self.send_state = False
-        
+        print(f"SEND STATE: {self.send_state}")
             
         # self.send_actions()
     def get_send_state(self):
@@ -78,6 +78,7 @@ class Bridge():
             
         # action_buff = self.actions.tobytes()
         action_buff = np.asarray(buffer2send, dtype = np.single).tobytes()
+        print(f"SOCKET ID IN SEND {id(self.consock)}")
         self.client_handler.send(action_buff, self.consock)
         print("RECEIVING DATA")
         self.recv_data()
@@ -95,9 +96,13 @@ class Bridge():
         print("SETTING SOCKET")
         try:
             self.consock = self.client_handler.set_socket()
+            print(f"..............SOCKET FROM HANDLER----------{self.consock}" )
+            print(f"SOCKET ID IN SETSOCKET {id(self.consock)}")
+            return self.consock
+            
         except:
             print("COULDNT SET SOCKET :(")
-        return self.consock
+        
        
         
     def get_socket(self):

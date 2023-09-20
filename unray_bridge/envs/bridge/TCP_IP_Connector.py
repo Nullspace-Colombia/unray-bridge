@@ -21,11 +21,12 @@ import numpy as np
 
 
 class mySocket(socket.socket):
-    def __init__(self):
+    def __init__(self, family, type):
         super().__init__(socket.AF_INET, socket.SOCK_STREAM)
+        
 
     def __reduce__(self):
-        return (self.__class__, socket.AF_INET, socket.SOCK_STREAM)
+        return (self.__class__, (socket.AF_INET, socket.SOCK_STREAM))
 
 
 class ClientHandler():
@@ -45,8 +46,9 @@ class ClientHandler():
         
     def set_socket(self):
         # self.sock/= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket = mySocket() # :V
-        return self.sock
+        self.socket = mySocket(socket.AF_INET, socket.SOCK_STREAM) # :V
+        print(f"..........SOCKET CREADO.........{id(self.socket)}")
+        return self.socket
 
     def get_socket(self):
         return self.sock
@@ -99,7 +101,7 @@ class ClientHandler():
         res = b''
         #respuesta = np.emtpy(1, dtype=np.single)
         nuevos_datos = b''
-        self.b_sock.setblocking(True)
+        b_sock.setblocking(True)
        
         try:
             while len(res) < expected_bytes:
