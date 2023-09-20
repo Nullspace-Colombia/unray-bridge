@@ -33,9 +33,11 @@ class Bridge():
         return self.client_handler
     
     def clock_tick(self):
-        print("count: {}".format(self.count))
-        self.count = self.count + 1         
-        # self.send_actions()
+        if not self.first_flag: 
+            
+            print("count: {}".format(self.count))
+            self.tick_count = self.tick_count + 1         
+            self.send_actions()
         threading.Timer(self.TICK_INTERVAL, self.clock_tick).start() # 
         return 
     
