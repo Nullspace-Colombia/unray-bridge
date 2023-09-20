@@ -22,7 +22,7 @@ class Bridge():
         self.send_state = False
         
         self.tick_count = 0
-        self.TICK_INTERVAL = 5 # segundos 
+        self.TICK_INTERVAL = 1 # segundos 
         self.clock_tick()
         #if show_gui:
             #gui.print_title()
@@ -33,10 +33,10 @@ class Bridge():
         return self.client_handler
     
     def clock_tick(self):
-        if not self.first_flag: 
-            
-            print("count: {}".format(self.count))
+        if self.tick_count > 1: 
+            print("count: {}".format(self.tick_count))
             self.tick_count = self.tick_count + 1         
+            
             self.send_actions()
         threading.Timer(self.TICK_INTERVAL, self.clock_tick).start() # 
         return 
@@ -69,6 +69,7 @@ class Bridge():
         self.action_dict_2_send[str(env_ID)] = action
         print(self.action_dict_2_send)
         print(f"[# ACTIONS]: {len(self.action_dict_2_send.keys())}")
+        """    
         if len(self.action_dict_2_send.keys()) >= self.n_envs:
             print(f"[SENDING ACTIONS]")
             self.send_actions() 
@@ -76,7 +77,7 @@ class Bridge():
         else:
             self.send_state = False
         print(f"SEND STATE: {self.send_state}")
-            
+        """
         # self.send_actions()
     def get_send_state(self):
         return self.send_state
