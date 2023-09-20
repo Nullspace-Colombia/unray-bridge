@@ -295,7 +295,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.actions = {}
         self.can_sees = {}
         self.obs_order = {}
-
+        self.reset_count = 0
 
         # for agent_name in config:
         #     self.agent_names.append(agent_name)
@@ -496,12 +496,20 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         #action_buff = action.tobytes()
         # n = self.get_amount_obs()
         # 3. Send the action vector to the environment. 
-        
+        self.dummy_obs = self.get_dict_template()
         ##Paralell
         #self.handler.send(action_buff) # Send action an wait response 
-        
-        self.bridge.set_actions.remote(action, self.ID)
-       
+        if self.reset_count == 0:
+            for agent in self.agents_names:
+            #print(f"{agent} ==== {self.act_space_dict[agent]}")
+            #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
+                self.dummy_obs[agent] = self.obs_space_dict[agent].sample()
+
+           
+        else:
+            self.bridge.set_actions.remote(action, self.ID)
+            state_ray = self.bridge.get_state.remote(self.ID)
+            state = ray.get(state_ray)
         #n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
         #data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
@@ -515,8 +523,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         """       
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
-        state_ray = self.bridge.get_state.remote(self.ID)
-        state = ray.get(state_ray)
+        
         # print(f"[STATE FROM UE] {state}")
                                 
         obs_dict = self.get_dict_template() # from agents names 
