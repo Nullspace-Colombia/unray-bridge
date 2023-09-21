@@ -20,9 +20,9 @@ class Bridge():
         self.action_dict_2_send = {}
         self.consock = self.client_handler.set_socket()
         self.send_state = False
-        
+        self.data =[]
         self.tick_count = 0
-        self.TICK_INTERVAL = 1 # segundos 
+        self.TICK_INTERVAL = 0.1 # segundos 
         self.clock_tick()
         #if show_gui:
             #gui.print_title()
@@ -69,15 +69,12 @@ class Bridge():
         self.action_dict_2_send[str(env_ID)] = action
         print(self.action_dict_2_send)
         print(f"[# ACTIONS]: {len(self.action_dict_2_send.keys())}")
-        """    
-        if len(self.action_dict_2_send.keys()) >= self.n_envs:
-            print(f"[SENDING ACTIONS]")
-            self.send_actions() 
-            self.send_state = True
-        else:
-            self.send_state = False
-        print(f"SEND STATE: {self.send_state}")
-        """
+            
+        
+        print(f"[SENDING ACTIONS]")
+        self.send_actions() 
+            
+        
         # self.send_actions()
     def get_send_state(self):
         return self.send_state
@@ -102,8 +99,9 @@ class Bridge():
     def get_state(self, env_id):  
         print(f"[GETTING STATE]: {self.data}")
         num_obs = self.to_byte(self.get_nobs()+self.get_amount_agents() * 3)
-        n_obs = num_obs // self.n_envs # check :v 
-        env_data = self.data[(env_id - 1)* n_obs: env_id * n_obs - 1] # Porcion de observacion por entorno 
+        n_obs = 8 # check :v 
+        print(f"-------------------------------SLICE DESDE:{(env_id - 1)* n_obs} hasta {env_id * n_obs} para entorno {env_id}-------------")
+        env_data = self.data[(env_id - 1)* n_obs: env_id * n_obs] # Porcion de observacion por entorno 
         
         print(f"[ENV DATA]: {env_data}")
         return env_data
