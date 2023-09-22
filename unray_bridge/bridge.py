@@ -146,7 +146,7 @@ class Bridge():
         print("DATA RECEIVED")
 
     def get_state(self, env_id):
-        print(f"[GETTING STATE]: {self.data}")
+        #print(f"[GETTING STATE]: {self.data}")
         num_obs = self.to_byte(self.get_nobs()+self.get_amount_agents() * 3)
         n_obs = 8  #  check :v
         print(
@@ -160,6 +160,7 @@ class Bridge():
     def get_state_stack(self):
         print(f"[GETTING STATE]: {self.data}")
         return self.data
+    
     def set_socket(self):
         print("SETTING SOCKET")
         try:
@@ -183,6 +184,7 @@ class Bridge():
             self.n_obs+self.get_amount_agents() * 3)  # bytes from read
         self.data = self.client_handler.recv(data_size, self.consock)
         print(f"[DATA]: {self.data}")
+        return self.data
 
     def select_obs_per_env(self, env_id):
         print(f"[GETTING STATE]: {self.data}")
@@ -241,11 +243,11 @@ class Bridge():
         try:
             action_buff = np.asarray(buffer2send, dtype=np.single).tobytes()
             self.client_handler.send(action_buff, self.consock)
-            recv_data = self.recv_data()
+            self.data = self.recv_data()
         except:
             return []
 
-        return recv_data
+        return self.data
     """
     def has_socket(self):
         if self.client_handler.sock is None:

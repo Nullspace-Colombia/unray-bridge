@@ -46,7 +46,7 @@ if __name__ == '__main__':
     config = PPOConfig()
 
     config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-    config = config.resources(num_gpus=0, num_cpus_per_worker=0.5)  
+    config = config.resources(num_gpus=0, num_cpus_per_worker=0.25)  
     config = config.rollouts(num_rollout_workers=0)  
     
     print(f"ROLLOUT: {config.num_rollout_workers}")
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     n_envs = config.num_rollout_workers
     algo = config.build(env = 'multiagents-arena')
     print(f"[ENV]:{algo.workers.local_worker().env} ")
-    print(f"[ADDING WORKERS]: {algo.workers.add_workers(2)}")
+    print(f"[ADDING WORKERS]: {algo.workers.add_workers(4)}")
     print(f"[NUM WORKERS]: {algo.workers.num_remote_workers()}")
     #print(f"[ENV ID]: {algo.workers.local_worker().env.ID}")
     
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     print("[SETTING BRIDGES]")
     print(f"WORKERS: {algo.workers.remote_workers()}")
     
-    con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
+    con_bridge = Bridge.remote(env_config, 4, ip, port) # Remote actor lass 
     #algo.workers.foreach_worker(set_bridge)
 
     print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
