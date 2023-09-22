@@ -56,7 +56,7 @@ class Bridge():
         
         """
         self.action_queue.put(current_env_obs)
-        print("[ACTION QUEUE ] added new obs vect, current size {}".format(self.action_queue.qsize()))
+        print("[ACTION QUEUE ] added new act vect, current size {}".format(self.action_queue.qsize()))
 
     def get_queue_action_size(self):
         return self.action_queue.qsize()
