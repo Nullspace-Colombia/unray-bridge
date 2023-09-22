@@ -49,6 +49,18 @@ class Bridge():
     def get_data_handler(self):
         return self.data_handler
 
+
+
+    def set_queue_action(self, current_env_obs): 
+        """
+        
+        """
+        self.action_queue.put(current_env_obs)
+        print("[ACTION QUEUE ] added new obs vect, current size {}".format(self.action_queue.qsize()))
+
+    def get_queue_action_size(self):
+        return self.action_queue.qsize()
+
     def send_queue_action(self):
         """
             Send action_stack from queue
@@ -68,7 +80,8 @@ class Bridge():
         print("[ACTION STACK ID] {}".format(env_id)) # env 
 
         try:
-            self.send_data(action_stack_to_send)
+            obs_response = self.send_data(action_stack_to_send)
+            
         except:
             return False
         
@@ -211,17 +224,17 @@ class Bridge():
         """
             send data through socket
             ---
-            @args buffer2send - array to be converted and send to UE5 
-            @returns sending_status - true = success
+            @args buffer2send {np.array} - array to be converted and send to UE5 
+            @returns recv_data {np.array} - data send as response from socket 
         """
         try:
             action_buff = np.asarray(buffer2send, dtype=np.single).tobytes()
             self.client_handler.send(action_buff, self.consock)
-            self.recv_data()
+            recv_data = self.recv_data()
         except:
             return False
 
-        return True
+        return recv_data
     """
     def has_socket(self):
         if self.client_handler.sock is None:
