@@ -41,8 +41,8 @@ class Bridge():
         if self.tick_count > 1:
             print("count: {}".format(self.tick_count))
             self.tick_count = self.tick_count + 1
+            self.send_queue_action()
 
-            self.send_actions()
         threading.Timer(self.TICK_INTERVAL, self.clock_tick).start()
         return
 
@@ -60,6 +60,7 @@ class Bridge():
 
     def get_queue_action_size(self):
         return self.action_queue.qsize()
+
 
     def send_queue_action(self):
         """
@@ -81,7 +82,6 @@ class Bridge():
 
         try:
             obs_response = self.send_data(action_stack_to_send)
-            
         except:
             return False
         
