@@ -40,9 +40,9 @@ class Bridge():
     def clock_tick(self):
         if self.tick_count > 1:
             print("count: {}".format(self.tick_count))
-            self.tick_count = self.tick_count + 1
+            
             self.send_queue_action()
-
+        self.tick_count = self.tick_count + 1
         threading.Timer(self.TICK_INTERVAL, self.clock_tick).start()
         return
 
@@ -76,6 +76,7 @@ class Bridge():
             return False #TODO: Raise exception 
         
         action_stack_to_send = self.action_queue.get()  #  action to send to UE5
+        self.action_queue.g
         env_id = action_stack_to_send[0]
         
         print("[ACTION STACK ID] {}".format(env_id)) # env 
