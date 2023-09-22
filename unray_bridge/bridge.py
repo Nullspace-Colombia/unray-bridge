@@ -24,9 +24,9 @@ class Bridge():
         self.send_state = False
         self.data = []
         self.tick_count = 0
-        self.TICK_INTERVAL = 0.1  #  segundos
+        self.TICK_INTERVAL = 0.01  #  segundos
         self.clock_tick()
-
+        self.sent_ID = -1
         self.action_queue = queue.Queue()
 
         # if show_gui:
@@ -72,18 +72,21 @@ class Bridge():
 
             [OLNY FOR ONE ENVIRONMENT]
         """
-        if self.action_queue.qsize <= 0:
+        if self.action_queue.qsize() <= 0:
             return False #TODO: Raise exception 
         
         action_stack_to_send = self.action_queue.get()  #  action to send to UE5
-        self.action_queue.g
         env_id = action_stack_to_send[0]
         
         print("[ACTION STACK ID] {}".format(env_id)) # env 
 
         try:
-            obs_response = self.send_data(action_stack_to_send)
+            
+            self.data = self.send_data(action_stack_to_send)
+            self.sent_ID = action_stack_to_send[0]
+            print(f"SENDING DATA: {action_stack_to_send}")
         except:
+            print("DID NOT SEND DATA")
             return False
         
         return True
@@ -121,6 +124,10 @@ class Bridge():
     def get_send_state(self):
         return self.send_state
 
+    def get_sent_id(self):
+        return self.sent_ID
+
+
     def send_actions(self):
         """
             Buffer de Envio 
@@ -150,6 +157,9 @@ class Bridge():
         print(f"[ENV DATA]: {env_data}")
         return env_data
 
+    def get_state_stack(self):
+        print(f"[GETTING STATE]: {self.data}")
+        return self.data
     def set_socket(self):
         print("SETTING SOCKET")
         try:
@@ -233,7 +243,7 @@ class Bridge():
             self.client_handler.send(action_buff, self.consock)
             recv_data = self.recv_data()
         except:
-            return False
+            return []
 
         return recv_data
     """

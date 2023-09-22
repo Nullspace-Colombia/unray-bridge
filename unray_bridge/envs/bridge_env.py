@@ -506,7 +506,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         if self.reset_count > 0:
             # sself.bridge.set_actions.remote(action, self.ID)
             self.bridge.set_queue_action.remote([self.ID, action])
-            state_ray = self.bridge.get_state.remote(self.ID)
+            while ray.get(self.bridge.get_sent_id.remote()) != self.ID:
+                print(f"waiting:  {ray.get(self.bridge.get_sent_id.remote())} ---- {self.ID}")
+            state_ray = self.bridge.get_state_stack.remote()
             state = ray.get(state_ray)
             print(f"[STATE]:{state}")
         else:
