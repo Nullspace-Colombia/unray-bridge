@@ -9,13 +9,13 @@ if __name__ == '__main__':
 
     config = QMixConfig()  
 
-    # config = config.training(train_batch_size=7300,lr=0.0005)
+    config = config.training(train_batch_size=512,lr=3e-5,gamma=0.99)
     config = config.exploration(exploration_config={"type": "StochasticSampling"})
     config = config.resources(num_gpus=0,num_gpus_per_worker=0)  
-    config = config.rollouts(num_rollout_workers=1)
+    config = config.rollouts(num_rollout_workers=1,rollout_fragment_length=256)
 
     algo = config.build(env = 'TwoAgentColaborative')
-    iters = 20
+    iters = 50
     for i in range(iters):
         result = algo.train()
         checkpoint_dir = algo.save('./results/')

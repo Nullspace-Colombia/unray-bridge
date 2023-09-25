@@ -266,12 +266,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  ip: str, 
                  port: int, 
                  config: dict, 
+                 info_={},
                  first_connection = False, 
                  validation = False, 
                  multiagent = False, 
                  show_gui = True):
         
         # gui 
+        self.info_ = info_
         if show_gui:
             gui.print_title()
 
@@ -425,7 +427,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         for action in actions:
             action2send.append(actions[action])
             
-        print(action2send) 
+        # print(action2send) 
 
         action=np.array(action2send,dtype=np.single)
 
@@ -513,7 +515,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         head = 0
         heads = []
         
-
+        info = {}
         for agent in self.agents_names:
             # amount of observations in the agent 
             obs_dict_arr = []
@@ -527,6 +529,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             #if done_dict[agent] == False:
             #obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
             obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
+            if len(self.info_[agent])>0:
+                info[agent] = {'y':obs_dict[agent][self.info_[agent]]}
             #else:
             #    del obs_dict[agent]
             #    del done_dict[agent]
@@ -562,16 +566,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         # create dictionary 
         self.obs_dict = obs_dict
-
-        info = {}
-
-        print(" Dicts ")
+        
+        # print(" Dicts ")
         # print("-obs: ")
         # print(obs_dict, end = "\n \n")
         # print("-reward: ")
         # print(reward_dict, end = "\n \n")
-        print("-done: ")
-        print(done_dict, end = "\n \n")
+        # print("-done: ")
+        # print(done_dict, end = "\n \n")
         # print("-truncated: ")
         # print(truncated_dict, end = "\n \n")
         return obs_dict, reward_dict, done_dict, truncated_dict, info
@@ -583,15 +585,19 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             ---
 
         """
-        print('[RESETTING]')
-        print('[OBS]:', self.obs_dict)
+        # print('[RESETTING]')
+        # print('[OBS]:', self.obs_dict)
         obs_dict = self.get_dict_template() # from agents names 
         for agent in obs_dict:
             #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
             obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
-        print("- Obs_dict: ")
-        print(obs_dict)
-        return obs_dict, {}
+        # print("- Obs_dict: ")
+        # print(obs_dict)
+        info = {}
+        for agent in self.agent_names:
+            if len(self.info_[agent])>0:
+                    info[agent] = {'y':obs_dict[agent][self.info_[agent]]}
+        return obs_dict, info
 
 
 
