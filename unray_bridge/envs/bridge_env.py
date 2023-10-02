@@ -35,7 +35,7 @@ import ray
 import gymnasium.spaces as spaces
 import numpy as np
 from socket import socket
-from bridge.TCP_IP_Connector import ClientHandler
+from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
