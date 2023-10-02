@@ -11,7 +11,7 @@ def get_ID(env):
 
 def set_ID(worker):
     ID = worker.worker_index
-    print(ID)
+    print("ID: ", ID)
     worker.env.set_ID(ID)
     
 def set_data(): 
@@ -25,7 +25,7 @@ def set_bridge(env):
    # print(f"[SETTING BRIDGE {id(bridge)} FOR ENV ")
     env.set_bridge(con_bridge)
     
- wv
+
 def print_IDS(worker):
     print(worker.worker_index)
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     n_envs = config.num_rollout_workers
     algo = config.build(env = 'multiagents-arena')
     print(f"[ENV]:{algo.workers.local_worker().env} ")
-    print(f"[ADDING WORKERS]: {algo.workers.add_workers(4)}")
+    print(f"[ADDING WORKERS]: {algo.workers.add_workers(2)}")
     print(f"[NUM WORKERS]: {algo.workers.num_remote_workers()}")
     #print(f"[ENV ID]: {algo.workers.local_worker().env.ID}")
     

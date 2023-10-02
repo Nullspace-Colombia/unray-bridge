@@ -35,7 +35,7 @@ import ray
 import gymnasium.spaces as spaces
 import numpy as np
 from socket import socket
-from bridge.TCP_IP_Connector import ClientHandler
+from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -536,7 +536,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                 self.dummy_truncated[agent] = False 
             
 
-       
+        n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
+        # estructura:   (id + obs + reward + done) * agente 
+        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
+        
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
         
