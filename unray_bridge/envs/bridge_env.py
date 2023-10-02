@@ -282,9 +282,9 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         # Connection stage 
         ## Worker will wait until de client handler connect to the UE5 instance Socket Server (SS)
-        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+       
 
-        self.client_handler.connect(self.consock) # Intenta conectarse 
+        
 
 
         
@@ -442,37 +442,40 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         return self.data
     
+    def connect_socket(self):
+        """
+            Connect Socket 
+            ---
+            When each env is called with foreach_env, this method will be invoked 
+            in order to create and connect the individual socket for each instance. 
 
+            1. Changes the port based on the env id. 
+            2. Get the socket instance 
+            3. Connect to given address (self.ip, cutom_socket)
+
+        """
+        self.client_handler.set_port(self.port + self.ID)
+        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+        self.client_handler.connect(self.consock) # Intenta conectarse 
 
         
     def step(self, actions: dict) -> None:
         """
         Step 
-        ---
-        args:
-            - action (dict): 
-        
         """
-        print(f"[ACTIONS]:{actions}")
-        print(f"[AGENTS]:{self.agents_names}")
-        """
-        if not self.validate_actions_dict(actions):
-            
-            raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
-        """
-        # Paralell
-        
-
-        print(actions)
+        # print(f"[ACTIONS]: {actions}")
+        print(f"[AGENTS]: {self.agents_names}")
 
         # create format 
         action2send = []
+        # Will access dict to get actions 
         for action in actions:
             action2send.append(actions[action])
-            
-        print(action2send) 
+
 
         action=np.array(action2send,dtype=np.single)
+
+        # Validación 
 
         if isinstance(action, list): 
             action = np.array(action)
@@ -483,9 +486,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         obs = self.obs_dict 
 
-
-        #terminated = self.check_termination(obs) # Check for validation to continue 
-        #action = np.insert(action, 0, np.single(terminated))
         
         print('[ACTION]', end=" ")
         print(action)
@@ -500,54 +500,22 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         can_sees_total = []
         order_observations = []
 
-        # for idx, observation in enumerate(self.observations): 
-        #     observation_space = self.observations[observation] # discrete space  for each agent 
-        #     # print(f"Observation {idx}: {observation_space.shape[0]}" )
-        #     # print(f"type: {type(observation_space)}")
-
-        #     total_obs_size += observation_space.shape[0]
-        #     total_obs.append(observation_space.shape[0]) # total space for observations 
-        #     can_sees_total.append(self.can_sees[observation]) # arreglo de cansees 
-        #     order_observations.append([e for e in self.obs_order[observation]])
-
-        # print(can_sees_total)
-        # print(order_observations)
-
-             
-        # for idx, agent_name in self.observations.keys(): 
-        #     order_observations = self.observations[agent_name]
-        #     amount_of_observations = self.can_sees[agent_name]
-            
-
-        # print("observaciones totales: ", total_obs_size)
-        # print("agentes: ", self.get_amount_agents())
-
-        # print("dictionary: ")
-        # print(self.get_dict_template())
-
-        # 2. Cast the action vector to a byte buffer for send.
-        #action_buff = action.tobytes()
-        # n = self.get_amount_obs()
-        # 3. Send the action vector to the environment. 
         self.dummy_obs = self.get_dict_template()
         self.dummy_dones = self.get_dict_template()
         self.dummy_reward = self.get_dict_template()
         self.dummy_truncated = self.get_dict_template()
-        ##Paralell
-        #self.handler.send(action_buff) # Send action an wait response 
-        #print(f"RESET COUNT: {self.reset_count}")
+
         if self.reset_count > 0:
-            # sself.bridge.set_actions.remote(action, self.ID)
             act_2_send = np.insert(action, 0, self.ID)
-            self.client_handler.send(act_2_send, self.consock)
+            self.client_handler.send(act_2_send, self.consock) # Send to socket in UE5
             # self.bridge.set_queue_action.remote(act_2_send)
              
-            while ray.get(self.bridge.get_sent_id.remote()) != self.ID:
-                print(f"waiting:  {ray.get(self.bridge.get_sent_id.remote())} ---- {self.ID}")
-            state_ray = self.bridge.get_state_stack.remote()
+            # while ray.get(self.bridge.get_sent_id.remote()) != self.ID:
+            #     print(f"waiting:  {ray.get(self.bridge.get_sent_id.remote())} ---- {self.ID}")
+            # state_ray = self.bridge.get_state_stack.remote()
             
             ###
-            
+            # Convert to 
             data_size = self.to_byte(
             self.n_obs+self.get_amount_agents() * 3
             )  # bytes from read
@@ -556,6 +524,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
             # state = ray.get(state_ray)
             print(f"[STATE]:{state}")
+            
+            # Hasta acá debería servir la prueba 
         else:
             for agent in self.agents_names:
             #print(f"{agent} ==== {self.act_space_dict[agent]}")
@@ -565,17 +535,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                 self.dummy_reward[agent] = 0
                 self.dummy_truncated[agent] = False 
             
-        #n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
-        # estructura:   (id + obs + reward + done) * agente 
-        #data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
-        
-        # calculate the size get the type of size 
-        """ 
-        while True:
-            if self.bridge.get_send_state.remote()== True:
-                print("SENDINGGGGGGGGGGGGGGGGGG")
-                break
-        """       
+
+       
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 
         
@@ -599,6 +560,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         head = 0
         heads = []
         #print(f"RESET COUNT: {self.reset_count}")
+
+        
+        ## 3. PROCESS DATA: Get the state vector and process it 
+
         if self.reset_count > 0:
             for agent in self.agents_names:
                 # amount of observations in the agent 
@@ -626,27 +591,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             truncated_dict = self.dummy_truncated
             
             
-
-        # for idx, n in enumerate(total_obs):
-        #     # extract agent parameters for episode 
-        #     skip = 3 + sum(total_obs[:idx])
-        #     id = state[idx * skip]
-        #     # obs = [state[1 + idx * skip: 1 + idx * skip + 1 ], state[1 + (idx + 1) * skip: 1 + idx * skip + 1 ]]#total_obs[idx]] # aqui es donde no cuadra
-        #     obs = [2, 6] 
-        #     reward = state[1 + idx * skip + 1 ]# total_obs[idx]]
-        #     done = state[2 + idx * skip + 1] #  total_obs[idx]]
-            
-        #     current_agent_name = self.agent_names[idx] # agent name from dicitonary 
-
-        #     # update each dictionary from major data 
-        #     obs_dict[current_agent_name] = np.array(obs, dtype= np.int16)
-        #     reward_dict[current_agent_name] = reward
-        #     done_dict[current_agent_name] = bool(done)
-        #     truncated_dict[current_agent_name] = False
-
-        #     all_done = all_done and done 
-
-        #     acum += n
 
         done_dict["__all__"] = bool(all_done )
         truncated_dict["__all__"] = False 

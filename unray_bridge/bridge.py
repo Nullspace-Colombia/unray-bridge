@@ -179,7 +179,7 @@ class Bridge():
         """
             Recive observaciones. TODO: Change name to recv_obs
         """
-
+        
         data_size = self.to_byte(
             self.n_obs+self.get_amount_agents() * 3)  # bytes from read
         self.data = self.client_handler.recv(data_size, self.consock)
