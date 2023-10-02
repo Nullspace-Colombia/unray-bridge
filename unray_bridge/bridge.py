@@ -175,7 +175,7 @@ class Bridge():
     def get_socket(self):
         return self.consock
 
-    def recv_data(self):
+    def recv_data(self, given_socket = False):
         """
             Recive observaciones. TODO: Change name to recv_obs
         """

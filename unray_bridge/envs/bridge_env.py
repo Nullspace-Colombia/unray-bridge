@@ -278,13 +278,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         # gui 
         self.ID = ID
-        self.socket = ClientHandler(ip, int(str(port) + str(ID)))
+        self.client_handler = ClientHandler(ip, port + ID)
 
         # Connection stage 
         ## Worker will wait until de client handler connect to the UE5 instance Socket Server (SS)
-        while not self.socket.connect(): 
-            print(f"[Worker {self.ID}] Trying to connect to socket...")
-        print(f"[Worker {self.ID}] Socket connected")
+        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+
+        self.client_handler.connect(self.consock) # Intenta conectarse 
+
 
         
 
@@ -424,7 +425,25 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             agent_dict_template[agent] = ""
 
         return agent_dict_template
-        
+    
+    def send_actions_to_socket(self, buffer2send) -> None:
+        """
+            send data through socket
+            ---
+            @args buffer2send {np.array} - array to be converted and send to UE5 
+            @returns recv_data {np.array} - data send as response from socket 
+        """
+        try:
+            action_buff = np.asarray(buffer2send, dtype=np.single).tobytes()
+            self.socket.send(action_buff, self.socket.get_socket())
+            self.data = self.recv_data()
+        except:
+            return []
+
+        return self.data
+    
+
+
         
     def step(self, actions: dict) -> None:
         """
@@ -520,11 +539,22 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         if self.reset_count > 0:
             # sself.bridge.set_actions.remote(action, self.ID)
             act_2_send = np.insert(action, 0, self.ID)
-            self.bridge.set_queue_action.remote(act_2_send)
+            self.client_handler.send(act_2_send, self.consock)
+            # self.bridge.set_queue_action.remote(act_2_send)
+             
             while ray.get(self.bridge.get_sent_id.remote()) != self.ID:
                 print(f"waiting:  {ray.get(self.bridge.get_sent_id.remote())} ---- {self.ID}")
             state_ray = self.bridge.get_state_stack.remote()
-            state = ray.get(state_ray)
+            
+            ###
+            
+            data_size = self.to_byte(
+            self.n_obs+self.get_amount_agents() * 3
+            )  # bytes from read
+            state = self.client_handler.recv(data_size, self.consock)
+
+            
+            # state = ray.get(state_ray)
             print(f"[STATE]:{state}")
         else:
             for agent in self.agents_names:
