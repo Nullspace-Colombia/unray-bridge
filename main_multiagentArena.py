@@ -77,14 +77,14 @@ if __name__ == '__main__':
     #algo.workers.add_workers(2)
     #print(f"[ENV IDS]: {algo.workers.foreach_env(get_ID)}")
     #print(f"[ENV CREATOR] {algo.workers._env_creator}")
-    print("[SETTING BRIDGES]")
+   # print("[SETTING BRIDGES]")
     print(f"WORKERS: {algo.workers.remote_workers()}")
     
-    con_bridge = Bridge.remote(env_config, 4, ip, port) # Remote actor lass 
+    #con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
     #algo.workers.foreach_worker(set_bridge)
 
-    print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
-        
+   # print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
+    algo.workers.foreach_worker(lambda worker: worker.env.connect_socket(), local_worker=False)        
 
     #algo.workers.local_worker().env.set_bridge(con_bridge)
     #algo.workers.foreach_env(set_bridge)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     
     #sock = con_bridge.set_socket.remote()
     #print("UWUNT")
-    con_bridge.start.remote() # Begin Connection
+    #con_bridge.start.remote() # Begin Connection
     
 
     for i in range(2):

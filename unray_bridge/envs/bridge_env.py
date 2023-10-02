@@ -504,10 +504,15 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.dummy_dones = self.get_dict_template()
         self.dummy_reward = self.get_dict_template()
         self.dummy_truncated = self.get_dict_template()
-
+        n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
+        # estructura:   (id + obs + reward + done) * agente 
+        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
+        print("DATASIZE: ", data_size)
         if self.reset_count > 0:
             act_2_send = np.insert(action, 0, self.ID)
+            print("SENDING ACTIONS TO SOCKET: ", self.consock)
             self.client_handler.send(act_2_send, self.consock) # Send to socket in UE5
+            
             # self.bridge.set_queue_action.remote(act_2_send)
              
             # while ray.get(self.bridge.get_sent_id.remote()) != self.ID:
@@ -516,10 +521,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
             ###
             # Convert to 
-            data_size = self.to_byte(
-            self.n_obs+self.get_amount_agents() * 3
-            )  # bytes from read
-            state = self.client_handler.recv(data_size, self.consock)
+            #data_size = self.to_byte(
+            #self.n_obs+self.get_amount_agents() * 3
+            #)  # bytes from read
+            state = self.client_handler.recv(8, self.consock)
 
             
             # state = ray.get(state_ray)
@@ -536,9 +541,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                 self.dummy_truncated[agent] = False 
             
 
-        n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
-        # estructura:   (id + obs + reward + done) * agente 
-        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
+        
         
         ##Paralell
         #state = self.handler.recv(data_size) # Get state vetor 

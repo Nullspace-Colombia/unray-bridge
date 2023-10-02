@@ -96,6 +96,8 @@ class ClientHandler():
         #data_sent = b''
         a_sock.send(msg)
         print(msg)
+        print("ENVIADO")
+        
         
     
     def recv(self, expected_bytes, b_sock):
@@ -107,7 +109,9 @@ class ClientHandler():
        
         try:
             while len(res) < expected_bytes:
+                print("WAITING FOR DATA")
                 nuevos_datos =b_sock.recv(expected_bytes - len(res))
+                
                 if not nuevos_datos:
                     # Handle disconnection
                     break    
