@@ -524,7 +524,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             #data_size = self.to_byte(
             #self.n_obs+self.get_amount_agents() * 3
             #)  # bytes from read
-            state = self.client_handler.recv(8, self.consock)
+            state = self.client_handler.recv(data_size, self.consock)
 
             
             # state = ray.get(state_ray)
@@ -641,6 +641,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             print("- Obs_dict: ")
             print(obs_dict)
         self.reset_count = self.reset_count+1
+        print("# RESETS: ", self.reset_count)
         return obs_dict, {}
     
     def create_handler(self): 

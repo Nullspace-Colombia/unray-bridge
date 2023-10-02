@@ -35,7 +35,7 @@ class ClientHandler():
     Client Handler 
     
     """
-    def __init__(self, ip = 'localhost', port = 10010): 
+    def __init__(self, ip = 'localhost', port = 5004): 
         self.connected = False 
         self.ip = ip 
         self.port = port 
@@ -109,7 +109,7 @@ class ClientHandler():
        
         try:
             while len(res) < expected_bytes:
-                print("WAITING FOR DATA")
+                
                 nuevos_datos =b_sock.recv(expected_bytes - len(res))
                 
                 if not nuevos_datos:
