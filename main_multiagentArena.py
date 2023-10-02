@@ -6,7 +6,6 @@ from unray_bridge.training import UnrayTrainer
 import ray
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
-
 def get_ID(env):
     return env.get_ID()
 
@@ -26,7 +25,7 @@ def set_bridge(env):
    # print(f"[SETTING BRIDGE {id(bridge)} FOR ENV ")
     env.set_bridge(con_bridge)
     
-
+ wv
 def print_IDS(worker):
     print(worker.worker_index)
 

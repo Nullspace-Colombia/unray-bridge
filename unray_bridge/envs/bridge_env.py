@@ -34,6 +34,8 @@ from unray_bridge.bridge import Bridge
 import ray
 import gymnasium.spaces as spaces
 import numpy as np
+from socket import socket
+from bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -275,7 +277,19 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  bridge= None):
         
         # gui 
+        self.ID = ID
+        self.socket = ClientHandler(ip, int(str(port) + str(ID)))
+
+        # Connection stage 
+        ## Worker will wait until de client handler connect to the UE5 instance Socket Server (SS)
+        while not self.socket.connect(): 
+            print(f"[Worker {self.ID}] Trying to connect to socket...")
+        print(f"[Worker {self.ID}] Socket connected")
+
         
+
+
+
 
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
@@ -352,7 +366,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         ## Paralell
         #self.create_handler()
         ## paralell
-        self.ID = ID
+        
 
         self.has_connection = True
         self.has_handler = True
