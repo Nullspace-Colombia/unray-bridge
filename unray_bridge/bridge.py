@@ -23,11 +23,6 @@ class Bridge():
         self.consock = self.client_handler.set_socket()
         self.send_state = False
         self.data = []
-        self.tick_count = 0
-        self.TICK_INTERVAL = 0.01  #  segundos
-        self.clock_tick()
-        self.sent_ID = -1
-        self.action_queue = queue.Queue()
 
         # if show_gui:
         # gui.print_title()
@@ -37,59 +32,8 @@ class Bridge():
     def get_client_handler(self):
         return self.client_handler
 
-    def clock_tick(self):
-        if self.tick_count > 1:
-            print("count: {}".format(self.tick_count))
-            
-            self.send_queue_action()
-        self.tick_count = self.tick_count + 1
-        threading.Timer(self.TICK_INTERVAL, self.clock_tick).start()
-        return
-
     def get_data_handler(self):
         return self.data_handler
-
-
-
-    def set_queue_action(self, current_env_obs): 
-        """
-        
-        """
-        self.action_queue.put(current_env_obs)
-        print("[ACTION QUEUE ] added new act vect, current size {}".format(self.action_queue.qsize()))
-
-    def get_queue_action_size(self):
-        return self.action_queue.qsize()
-
-
-    def send_queue_action(self):
-        """
-            Send action_stack from queue
-            ---
-            Get the action_stack for a given environment 
-            to be send to the UE scene. This will send the 
-            environment id with the required actions. 
-
-            [OLNY FOR ONE ENVIRONMENT]
-        """
-        if self.action_queue.qsize() <= 0:
-            return False #TODO: Raise exception 
-        
-        action_stack_to_send = self.action_queue.get()  #  action to send to UE5
-        env_id = action_stack_to_send[0]
-        
-        print("[ACTION STACK ID] {}".format(env_id)) # env 
-
-        try:
-            
-            self.data = self.send_data(action_stack_to_send)
-            self.sent_ID = action_stack_to_send[0]
-            print(f"SENDING DATA: {action_stack_to_send}")
-        except:
-            print("DID NOT SEND DATA")
-            return False
-        
-        return True
 
     def start(self):
 
@@ -124,10 +68,6 @@ class Bridge():
     def get_send_state(self):
         return self.send_state
 
-    def get_sent_id(self):
-        return self.sent_ID
-
-
     def send_actions(self):
         """
             Buffer de Envio 
@@ -157,10 +97,6 @@ class Bridge():
         print(f"[ENV DATA]: {env_data}")
         return env_data
 
-    def get_state_stack(self):
-        print(f"[GETTING STATE]: {self.data}")
-        return self.data
-    
     def set_socket(self):
         print("SETTING SOCKET")
         try:
@@ -194,10 +130,7 @@ class Bridge():
         env_data = self.data[env_id * (n_obs - 1): env_id * n_obs - 1]
 
         return env_data
-
-    def get_amount_workers_active(self):
-        return 3
-
+    
     def get_nactions(self):
         self.multienv_config = self.MCE.get_multienv_config_dict()
         self.agents_names = list(self.multienv_config.keys())
