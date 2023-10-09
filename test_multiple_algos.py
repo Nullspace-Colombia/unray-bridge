@@ -23,15 +23,11 @@ from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
 
 if __name__ == '__main__':
-    ip = 'localhost'
-    port = 10011
-    
-    bridge = Bridge(ip, port)
-    print("[BRIDGE STARTED]")
-    #"""
+
+
     
     register_env('multiagents-arena', MultiAgentArena.get_env(
-        amount_of_envs= 1, bridge=bridge
+        amount_of_envs= 1
     ))
     print("[ENV REGISTER SUCCESS]")
     #handler = bridge.get_client_handler()
@@ -113,15 +109,21 @@ if __name__ == '__main__':
     )
     dqn = dqn_config.build()
 
-    sock = bridge.set_socket()
-    bridge.start(sock)
-    ppo.workers.local_worker().env.set_bridge(bridge)
-    dqn.workers.local_worker().env.set_bridge(bridge)
+    #sock = bridge.set_socket()
+    #bridge.start(sock)
+    #ppo.workers.local_worker().env.set_bridge(bridge)
+    #dqn.workers.local_worker().env.set_bridge(bridge)
     # You should see both the printed X and Y approach 200 as this trains:
     # info:
     #   policy_reward_mean:
     #     dqn_policy: X
     #     ppo_policy: Y
+
+    print("assign sock")
+    ppo.workers.local_worker().env.connect_socket()
+    s = ppo.workers.local_worker().env.get_socket()
+    dqn.workers.local_worker().env.set_socket(s)
+
     for i in range(3):
         print("== Iteration", i, "==")
 

@@ -45,7 +45,7 @@ if __name__ == '__main__':
     config = PPOConfig()
 
     config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-    config = config.resources(num_gpus=0)  
+    config = config.resources(num_gpus=0, num_cpus_per_trainer_worker=0.125)  
     config = config.rollouts(num_rollout_workers=0)  
     
     print(f"ROLLOUT: {config.num_rollout_workers}")
@@ -55,9 +55,9 @@ if __name__ == '__main__':
     #    config.rollouts(num_rollout_workers=0)
     n_envs = config.num_rollout_workers
     algo = config.build(env = 'multiagents-arena')
-    print(f"[ENV]:{algo.workers.local_worker().env} ")
-    print(f"[ADDING WORKERS]: {algo.workers.add_workers(2)}")
-    print(f"[NUM WORKERS]: {algo.workers.num_remote_workers()}")
+    #print(f"[ENV]:{algo.workers.local_worker().env} ")
+    #print(f"[ADDING WORKERS]: {algo.workers.add_workers(3)}")
+   # print(f"[NUM WORKERS]: {algo.workers.num_remote_workers()}")
     #print(f"[ENV ID]: {algo.workers.local_worker().env.ID}")
     
     #algo.workers.foreach_worker()
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     #print(f"[WORKER HOST]: {algo.workers.foreach_worker(get_worker_host)}")
     
     #print(f"[WORKER IDS]: {algo.workers.foreach_worker(print_IDS)}")
-    #print(f"[ADDING WORKERS]: {algo.workers.add_workers(2)}")
+    print(f"[ADDING WORKERS]: {algo.workers.add_workers(6)}")
     #print(dir(algo.workers))
     algo.workers.foreach_worker(set_ID)
     #algo.workers.foreach_worker(lambda worker: print(worker.config))
@@ -78,14 +78,14 @@ if __name__ == '__main__':
     #print(f"[ENV IDS]: {algo.workers.foreach_env(get_ID)}")
     #print(f"[ENV CREATOR] {algo.workers._env_creator}")
    # print("[SETTING BRIDGES]")
-    print(f"WORKERS: {algo.workers.remote_workers()}")
+   # print(f"WORKERS: {algo.workers.remote_workers()}")
     
     #con_bridge = Bridge.remote(env_config, 2, ip, port) # Remote actor lass 
     #algo.workers.foreach_worker(set_bridge)
-
+    #algo.workers.local_worker().env.connect_socket()
    # print(f"...............[FOREACHENV]: {algo.workers.foreach_env(lambda env: env.set_bridge(con_bridge))}.............")
     algo.workers.foreach_worker(lambda worker: worker.env.connect_socket(), local_worker=False)        
-
+    
     #algo.workers.local_worker().env.set_bridge(con_bridge)
     #algo.workers.foreach_env(set_bridge)
     
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     for i in range(2):
         print("training")
         result = algo.train()
-        print(f"train {i}")
+        print(f"-----train {i}------")
     print(result['episode_reward_mean'])
 
     
