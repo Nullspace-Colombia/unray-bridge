@@ -6,31 +6,28 @@ from unray_bridge.training import UnrayTrainer
 import ray
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.registry import register_env
-def get_ID(env):
-    return env.get_ID()
-
-def set_ID(worker):
-    ID = worker.worker_index
-    print("ID: ", ID)
-    worker.env.set_ID(ID)
-    
-def set_data(): 
-    pass 
-
-def get_worker_host(worker):
-    return worker.get_host()
-
-@ray.remote
-def set_bridge(env):
-   # print(f"[SETTING BRIDGE {id(bridge)} FOR ENV ")
-    env.set_bridge(con_bridge)
-    
-
-def print_IDS(worker):
-    print(worker.worker_index)
 
 if __name__ == '__main__':
+    
+    config = PPOConfig()
 
+    config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
+    config = config.resources(num_gpus=0)  
+    config = config.rollouts(num_rollout_workers=0)  
+    
+    
+    env_t = MultiAgentArena
+    
+    trainer = UnrayTrainer()
+    algo = trainer.configure_algo(config, env_t, 'multiagents-arena', num_workers= 4)
+    for i in range(2):
+        print(f"-------------------TRAINING ITERATION {algo.training_iteration}-------------------")
+        result = algo.train()
+
+        
+    print(result['episode_reward_mean'])
+
+"""
     ray.init()
     ip = 'localhost'
     port = 10011
@@ -69,7 +66,7 @@ if __name__ == '__main__':
     #print(f"[WORKER HOST]: {algo.workers.foreach_worker(get_worker_host)}")
     
     #print(f"[WORKER IDS]: {algo.workers.foreach_worker(print_IDS)}")
-    print(f"[ADDING WORKERS]: {algo.workers.add_workers(6)}")
+    print(f"[ADDING WORKERS]: {algo.workers.add_workers(4)}")
     #print(dir(algo.workers))
     algo.workers.foreach_worker(set_ID)
     #algo.workers.foreach_worker(lambda worker: print(worker.config))
@@ -100,33 +97,8 @@ if __name__ == '__main__':
         result = algo.train()
         print(f"-----train {i}------")
     print(result['episode_reward_mean'])
-
-    
 """
+    
 
-    ip = 'localhost'
-    port = 10011
-    
-    config = PPOConfig()
 
-    config = config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-    config = config.resources(num_gpus=0)  
-    config = config.rollouts(num_rollout_workers=2)  
-    
-    
-    env_t = MultiAgentArena
-    
-    trainer = UnrayTrainer()
-    algo = trainer.configure_algo(config, env_t, 'multiagents-arena', ip, port)
-    for i in range(2):
-        print("training")
-        result = algo.train()
-        print(f"train {i}")
-    print(result['episode_reward_mean'])
 
-        @ray.remote
-    class RemoteBridge():
-        def __init__(self):
-            self.bridge = con_bridge
-    remote_b = RemoteBridge()
-"""

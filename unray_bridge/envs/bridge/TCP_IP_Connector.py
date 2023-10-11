@@ -45,7 +45,7 @@ class ClientHandler():
         
         
     def set_socket(self, ip = False):
-        
+
         self.socket = mySocket(socket.AF_INET, socket.SOCK_STREAM) 
         return self.socket
 
@@ -90,57 +90,32 @@ class ClientHandler():
     def send(self, msg, a_sock,  __BUFFER_DATA_SIZE = 32):
         if not self.connected:
             assert "No server connection. Please check"
-        #print("[ SEND ]", end = " ")
-        #data_size = len(msg)
-        #data_sent = b''
         a_sock.settimeout(1)
         try:
             a_sock.send(msg)
         except:
             pass
-        print(msg)
-        print("ENVIADO")
+
         
         
     
     def recv(self, expected_bytes, b_sock):
         count = 0
         res = b''
-        #respuesta = np.emtpy(1, dtype=np.single)
         nuevos_datos = b''
         b_sock.settimeout(1)
        
         try:
             res = b_sock.recv(expected_bytes)
         
-                
-            """
-            
-            while len(res) < expected_bytes:
-                
-                nuevos_datos = b_sock.recv(expected_bytes - len(res))
-                print("DATA RECEVIDED: ", nuevos_datos)
-                if not nuevos_datos:
-                    print("DISCONNECTING")
-                    # Handle disconnection
-                    break    
-                res+=nuevos_datos
-                #nuevos_datos = b''
-            """
             
         except socket.error as e:
+            "If the socket doesn't receive any data"
             print(f"Error : {e}")
             res = np.array([0,0,0,0,0,0,0,0], dtype=np.double)
             res = res.tobytes()
-            #respuesta = np.frombuffer(res, dtype=np.single)
-            #print(respuesta)
-            #respuesta = np.append(np.frombuffer(nuevos_datos, dtype=np.single))       
-        #finally:
-            #b_sock.setblocking(False)
-        #print(res)
-        respuesta = np.frombuffer(res, dtype=np.double)
-        #print("[ RECV ]", end = " " )   
-        print(respuesta)
+
+        respuesta = np.frombuffer(res, dtype=np.double) 
 
         return respuesta 
         

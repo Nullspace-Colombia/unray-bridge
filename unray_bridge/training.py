@@ -19,7 +19,7 @@ class UnrayTrainer():
         return worker.env.get_ID()
 
     def set_ID(self, worker):
-        ID = worker.worker_index + 1
+        ID = worker.worker_index
         worker.env.set_ID(ID)
 
     def set_worker_bridge(self, worker):
@@ -28,16 +28,13 @@ class UnrayTrainer():
         
         worker.env.set_bridge(bridge_t)
 
-    def configure_algo(self, config, env_t, env_name, ip = 'localhost', port = 10011):
+    def configure_algo(self, config, env_t, env_name, num_workers):
 
         if config.num_rollout_workers > 0:
-            n_workers = config.num_rollout_workers
-            n_envs = n_workers
-            print(f"[N_ENVS]:{n_envs}" )
+            n_envs = config.num_rollout_workers
             config.rollouts(num_rollout_workers=0) 
         else:
             n_envs = 1
-        print("[Bridge] Starting instance...")
 
         
         #self.con_bridge = Bridge(env_t.get_config(), n_envs, ip, port) # Bridge control 
@@ -45,38 +42,21 @@ class UnrayTrainer():
         register_env(env_name, env_t.get_env(
             amount_of_envs= 1
         ))
-        print("[Bridge] Created!")
-
-        print("[STARTING BRIDGE]")
         
     
 
         algo = config.build(env = env_name)
-        print(f"[N_ENVS]: {n_envs}")
-        algo.workers.add_workers(n_workers)
+        algo.workers.add_workers(num_workers)
 
         print(f"[NUM WORKERS]: {algo.workers.num_remote_workers()}")
-     
-
-        print("SETTING IDS")
         
         algo.workers.foreach_worker(self.set_ID)
 
-        print(f"[ENV IDS]: {algo.workers.foreach_worker(self.get_ID)}")
-
-        
-        print("SETTING BRIDGE")
         if algo.workers.num_remote_workers() > 0:
-            print("[SETTING BRIDGE FOR WORKERS]")
-            print(f".................[BRIDGE]: {id(self.con_bridge)}.............")
-            algo.workers.foreach_worker(self.set_worker_bridge)
+            algo.workers.foreach_worker(lambda worker: worker.env.connect_socket(), local_worker=False)
             
         else:
-            algo.workers.local_worker().env.set_bridge(self.con_bridge)
-        
-        print(f"[NUM WORKERS]: {algo.workers.num_healthy_workers()}")
-        sock = self.con_bridge.set_socket()
-        
-        self.con_bridge.start(sock) # Begin Connection
+            algo.workers.local_worker().env.connect_socket()
+
         return algo
 
