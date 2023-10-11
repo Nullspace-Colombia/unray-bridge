@@ -45,9 +45,8 @@ class ClientHandler():
         
         
     def set_socket(self, ip = False):
-        # self.sock/= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket = mySocket(socket.AF_INET, socket.SOCK_STREAM) # :V
-        print(f"..........SOCKET CREADO.........{id(self.socket)}")
+        
+        self.socket = mySocket(socket.AF_INET, socket.SOCK_STREAM) 
         return self.socket
 
     def get_socket(self):
