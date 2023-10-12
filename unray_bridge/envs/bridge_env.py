@@ -475,7 +475,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
         else:
             #If is the first reset, get random data
-            print("FIRST RESET2")
+            
             for agent in self.agents_names:
                 self.dummy_obs[agent] = self.obs_space_dict[agent].sample()
                 self.dummy_dones[agent] = False
