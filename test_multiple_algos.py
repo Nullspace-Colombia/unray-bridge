@@ -1,5 +1,4 @@
 from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
-from unray_bridge.bridge import Bridge
 from unray_bridge.multiagents_config import MultiEnvCreator
 from unray_bridge.envs.envs.MultiAgentArena import get_config
 import numpy as np

@@ -30,7 +30,6 @@ from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
-from unray_bridge.bridge import Bridge
 import ray
 import gymnasium.spaces as spaces
 import numpy as np
@@ -476,6 +475,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             
         else:
             #If is the first reset, get random data
+            print("FIRST RESET2")
             for agent in self.agents_names:
                 self.dummy_obs[agent] = self.obs_space_dict[agent].sample()
                 self.dummy_dones[agent] = False
