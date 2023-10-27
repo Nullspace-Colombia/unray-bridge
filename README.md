@@ -111,7 +111,7 @@ There are currently two examples ready for you to run.
 
 #### Cartpole
 
-![Cartpole](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/93e9492e-695b-4bef-ab32-8182e62bf40e)
+![Cartpole](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/801fcc65-ab24-41e2-9d20-6ef4fa186fda)
 
 In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
@@ -123,7 +123,8 @@ If everything is correct, the cartpole will start to move.
 
 #### MultiAgent Arena
 
-![MultiAgentArena_emv](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/91c75688-342d-4b5c-813c-d4c302614d0e)
+![MultiAgentArena_S](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/3eddf96d-8d72-4838-a7ca-ffa71bbe6832)
+
 
 In this env, you have two agents competing in a single env. 
 
@@ -237,10 +238,5 @@ env = MultiAgentBridgeEnv(
   <img width="70%" src="https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/c9e3b4b2-e8a5-46e4-8ade-876b049de4d6"
  /> 
 </p> 
-
-
-# RL Environment for parallel training 
-
-In dev process.
 
 
