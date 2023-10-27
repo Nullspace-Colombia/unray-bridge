@@ -136,6 +136,18 @@ python main_multiagentArena.py
 
 If everything is correct, the agents will start to move. 
 
+### MultiAgent Arena Parallel Trainning
+
+![MultiAgentArena](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/1940d152-716d-4a2c-98f5-4383228bf384)
+
+In Unreal Engine, go to the maps folder and start the MultiAgentArena_BP map. Once it is running, go to your terminal an inside the unray-bridge folder run:
+
+```terminal
+python parallel_multiagentArena.py
+```
+
+If everything is correct, the four envs will start to move. 
+
 
 # RL Environment for simple training
 ## Single Agent
