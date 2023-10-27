@@ -35,7 +35,7 @@ class ClientHandler():
     Client Handler 
     
     """
-    def __init__(self, ip = 'localhost', port = 5004): 
+    def __init__(self, ip = 'localhost', port = 9443): 
         self.connected = False 
         self.ip = ip 
         self.port = port 

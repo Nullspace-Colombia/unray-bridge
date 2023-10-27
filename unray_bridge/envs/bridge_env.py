@@ -243,6 +243,7 @@ class BridgeEnv(gymEnv):
 
         """
         self.handler.close()
+        
     
 class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
     """
