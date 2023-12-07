@@ -15,7 +15,7 @@
     environments and createa (MultiAgent)BridgeEnv instance 
     with a initial configuration. 
 
-    You ahve to define a observation_space and actions_space from 
+    You have to define a observation_space and actions_space from 
     BridgeSpaces (@see unray_bridge.envs.spaces).
 
     @author Valentina Hernandez
@@ -28,12 +28,13 @@
 """
 from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
-from unray_bridge import gui 
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
-
+import ray
 import gymnasium.spaces as spaces
 import numpy as np
+from socket import socket
+from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -54,6 +55,7 @@ class BridgeEnv(gymEnv):
                  validation = False, 
                  multiagent = False):
                  
+        self.client_handler = ClientHandler(ip, port)
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         
@@ -68,10 +70,10 @@ class BridgeEnv(gymEnv):
 
         self.has_handler = False # ClientHandler to begin with connection
         self.has_connection = False
-
+        self.dummy_action = None
         self.validation = validation
         self.multiagent = multiagent 
-
+        self.reset_count = -2
         
         try: 
             self.observation_space = self.observation_config["space"] # Get imported space 
@@ -80,16 +82,14 @@ class BridgeEnv(gymEnv):
             raise ValueError("No correct space selected")
 
         self.obs = self.observation_space.sample()
-        # if first_connection:
-        #     self.handler = ClientHandler(self.ip, self.port)
 
         self.create_handler()
 
     
     def step(self, action): 
 
-        if not self.has_connection:
-            self.connect()
+        #if not self.has_connection:
+        #    self.connect()
 
         action=np.array(action,dtype=np.single)
 
@@ -100,50 +100,90 @@ class BridgeEnv(gymEnv):
         else:
             assert "No valid action type. Only supports <list> or <numpy.ndarray> given %s" % (type(action))
         
-        obs = self.obs 
 
-        #terminated = self.check_termination(obs) # Check for validation to continue 
-        #action = np.insert(action, 0, np.single(terminated))
-        
-        print('[ACTION]', end=" ")
-        print(action)
-
-        # 2. Cast the action vector to a byte buffer for send.
+        state = np.empty(self.observation_space.shape, dtype=self.observation_space.dtype)
         action_buff = action.tobytes()
         n = self.get_amount_obs()
-        # 3. Send the action vector to the environment. 
-        self.handler.send(action_buff) # Send action an wait response 
-        data_size = 8*(n+2)
 
-        state = self.handler.recv(data_size) # Get state vetor 
-        obs = state[0:n]
-        self.obs = obs 
        
+        if self.reset_count > 0:
+            
+        # 2. Cast the action vector to a byte buffer for send.
+            
+        # 3. Send the action vector to the environment. 
+        #self.handler.send(action_buff) # Send action an wait response 
+            data_size = 8*(n+2)
+
+        #state = self.handler.recv(data_size) # Get state vetor 
+
+            self.client_handler.send(action_buff, self.consock) # Send to socket in UE5
+            state = self.client_handler.recv(data_size, self.consock)
+            
+        else :
+            t_obs = self.observation_space.sample()
+            t_reward = 0
+            t_terminated = False
+            state = []
+            state = np.append(t_obs,t_reward)
+            state = np.append(state, t_terminated)
+            
+           
+        obs = state[0:n]
+        reward = state[n]
+        terminated = bool(state[n+1])
+        self.obs = obs 
         # 4. Rewards System
         # For each frame within the termination limits, 
         ##reward = self.counter
         
-        reward = state[n]
-        terminated = bool(state[n+1])
-
         
 
-        # 4. Rewards System
-        # For each frame within the termination limits, 
-        # self.counter += 1
-        # reward = self.counter
-        #reward = 0
-
+        state = []
         # Additional metadata [ignore ]
         truncated = False
         info = {}
 
         return obs, reward, terminated, truncated, info
 
+    def connect_socket(self):
+        """
+            Connect Socket 
+            ---
+            When each env is called with foreach_env, this method will be invoked 
+            in order to create and connect the individual socket for each instance. 
+
+            1. Changes the port based on the env id. 
+            2. Get the socket instance 
+            3. Connect to given address (self.ip, cutom_socket)
+
+        """
+        self.client_handler.set_port(self.port)
+        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+        self.client_handler.connect(self.consock) # Intenta conectarse 
     
+    def get_socket(self):
+        return self.consock
+
+    def set_socket(self, sock):
+        """
+        Set Socket
+
+        """
+        self.consock = sock
+        
     def reset(self, *, seed=None, options=None):
-        print('[OBS]:', self.get_amount_obs())
-        return np.asarray(self.obs, dtype=self.observation_space.dtype), {}
+
+        if self.dummy_action is None:
+            print("FIRST RESET")
+            self.dummy_action = self.action_space.sample()
+            obs, self.reward, self.done, self.truncated, self.info = self.step(self.dummy_action)
+        else:
+            print('[RESETTING]')
+            obs = np.asarray(self.obs, dtype=self.observation_space.dtype)
+
+        self.reset_count = self.reset_count+1
+
+        return obs, {}
 
     def get_multiagent_state_dict(received_vector: np.array): 
         state = {}
@@ -257,6 +297,7 @@ class BridgeEnv(gymEnv):
 
         """
         self.handler.close()
+        
     
 class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
     """
@@ -270,15 +311,21 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  first_connection = False, 
                  validation = False, 
                  multiagent = False, 
-                 show_gui = True):
+                 #Paralell
+                 ID = int):
         
         # gui 
-        if show_gui:
-            gui.print_title()
+        self.ID = ID
+        self.client_handler = ClientHandler(ip, port + ID)
+
+        # Connection stage 
+        ## Worker will wait until de client handler connect to the UE5 instance Socket Server (SS)
+    
 
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
-        
+        #self.bridge = env_bridge
+
         if not name:
             print("error")
             raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
@@ -290,14 +337,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.actions = {}
         self.can_sees = {}
         self.obs_order = {}
-
-
-        # for agent_name in config:
-        #     self.agent_names.append(agent_name)
-        #     self.observations[agent_name] = config[agent_name]["observation"]
-        #     self.actions[agent_name] = config[agent_name]["action"]
-        #     self.can_sees[agent_name] = config[agent_name]["can_see"]
-        #     self.obs_order[agent_name] = config[agent_name]["obs_order"]
+        self.reset_count = 0
 
         
         self.agents_names = list(config.keys())
@@ -321,14 +361,12 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         # Rllib metadata
         self.obs_space_dict = self.get_dict_template()
         self.act_space_dict = self.get_dict_template()
-        
+
+        #Dictionary for obs and action spaces for each agent
         for idx, agent in enumerate(self.agents_names):
             self.obs_space_dict[agent] = config[self.agents_names[idx]]['observation']
             self.act_space_dict[agent] = config[self.agents_names[idx]]['action']  
 
-        #print("-------------")  
-        #print(self.act_space_dict)
-        #print("-------")
         self.observation_space = config[self.agents_names[0]]['observation']
         self.action_space = config[self.agents_names[0]]['action']
 
@@ -340,15 +378,14 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             self.heads_reference[agent] = 1 if idx == 0 else self.heads_reference[prev_agent] + 3 + self.config[agent]['can_show']
             prev_agent = agent
 
-        print("Heads reference: ", end = "") 
-        print(self.heads_reference)
+      
 
+        self.has_connection = True
+        self.has_handler = True
 
         self.obs_dict = self.get_dict_template()
-        for agent in self.agents_names:
-            self.obs_dict[agent] = self.obs_space_dict[agent].sample()
-
-        self.create_handler()
+        self.dummy_action = self.get_dict_template()
+        
 
     def get_amount_agents(self) -> int: 
         """
@@ -394,35 +431,36 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         return agent_dict_template
         
-        
+    def connect_socket(self):
+        """
+            Connect Socket 
+            ---
+            When each env is called with foreach_env, this method will be invoked 
+            in order to create and connect the individual socket for each instance. 
+
+            1. Changes the port based on the env id. 
+            2. Get the socket instance 
+            3. Connect to given address (self.ip, cutom_socket)
+
+        """
+        self.client_handler.set_port(self.port + self.ID)
+        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+        self.client_handler.connect(self.consock) # Intenta conectarse 
+    
     def step(self, actions: dict) -> None:
         """
         Step 
-        ---
-        args:
-            - action (dict): 
-        
         """
-        print(f"[ACTIONS]:{actions}")
-        print(f"[AGENTS]:{self.agents_names}")
-        """
-        if not self.validate_actions_dict(actions):
-            
-            raise ValueError("Check the actions dict. Amount of agents do not match amount of actions send")
-        """
-        if not self.has_connection:
-            self.connect()
 
-        print(actions)
-
-        # create format 
         action2send = []
+        # Will access dict to get actions 
         for action in actions:
             action2send.append(actions[action])
-            
-        print(action2send) 
+
 
         action=np.array(action2send,dtype=np.single)
+
+        # Validación 
 
         if isinstance(action, list): 
             action = np.array(action)
@@ -433,63 +471,46 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         
         obs = self.obs_dict 
 
-
-        #terminated = self.check_termination(obs) # Check for validation to continue 
-        #action = np.insert(action, 0, np.single(terminated))
         
-        print('[ACTION]', end=" ")
-        print(action)
-        
+        #print('[ACTION]', end=" ")
+        #print(action)
 
         total_obs_size = 0 # sizes 
         total_obs = []
         agents = self.observations.keys() # agents names
-        print("agents:", end = " ") 
-        print(agents) 
 
         can_sees_total = []
         order_observations = []
 
-        # for idx, observation in enumerate(self.observations): 
-        #     observation_space = self.observations[observation] # discrete space  for each agent 
-        #     # print(f"Observation {idx}: {observation_space.shape[0]}" )
-        #     # print(f"type: {type(observation_space)}")
-
-        #     total_obs_size += observation_space.shape[0]
-        #     total_obs.append(observation_space.shape[0]) # total space for observations 
-        #     can_sees_total.append(self.can_sees[observation]) # arreglo de cansees 
-        #     order_observations.append([e for e in self.obs_order[observation]])
-
-        # print(can_sees_total)
-        # print(order_observations)
-
-             
-        # for idx, agent_name in self.observations.keys(): 
-        #     order_observations = self.observations[agent_name]
-        #     amount_of_observations = self.can_sees[agent_name]
-            
-
-        # print("observaciones totales: ", total_obs_size)
-        # print("agentes: ", self.get_amount_agents())
-
-        # print("dictionary: ")
-        # print(self.get_dict_template())
-
-        # 2. Cast the action vector to a byte buffer for send.
-        action_buff = action.tobytes()
-        # n = self.get_amount_obs()
-        # 3. Send the action vector to the environment. 
-        self.handler.send(action_buff) # Send action an wait response 
-        
+        self.dummy_obs = self.get_dict_template()
+        self.dummy_dones = self.get_dict_template()
+        self.dummy_reward = self.get_dict_template()
+        self.dummy_truncated = self.get_dict_template()
         n_obs = sum([self.config[agent]['can_show'] for agent in self.config])
         # estructura:   (id + obs + reward + done) * agente 
-        data_size = self.to_byte(n_obs+self.get_amount_agents() * 3) # bytes from read 
-        
-        # calculate the size get the type of size 
-        
-        state = self.handler.recv(data_size) # Get state vetor 
-        # print(f"[STATE FROM UE] {state}")
-                                
+        data_size = self.to_byte(n_obs + self.get_amount_agents() * 3) # bytes from read 
+
+        if self.reset_count > 0:
+            act_2_send = np.insert(action, 0, self.ID)
+
+            #send action to UE5
+            self.client_handler.send(act_2_send, self.consock) # Send to socket in UE5
+
+            #receive state vector from UE5
+            state = self.client_handler.recv(data_size, self.consock)
+            
+                
+            
+            #print(f"[STATE]:{state}")
+        else:    
+            #If is the first reset, get random data
+            
+            for agent in self.agents_names:
+                self.dummy_obs[agent] = self.obs_space_dict[agent].sample()
+                self.dummy_dones[agent] = False
+                self.dummy_reward[agent] = 0
+                self.dummy_truncated[agent] = False 
+            
         obs_dict = self.get_dict_template() # from agents names 
         reward_dict = self.get_dict_template() # from agents names 
         done_dict = self.get_dict_template() # from agents names 
@@ -507,68 +528,40 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         head = 0
         heads = []
-        
 
-        for agent in self.agents_names:
-            # amount of observations in the agent 
-            obs_dict_arr = []
-            for observation_check_agent in list(self.config[agent]['obs_order']):
-                for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:
-                    print(f"Checking in {agent} state with {observation_check_agent} at position {idx_observation_check_agent}")            
-                    obs_dict_arr.append(state[self.heads_reference[observation_check_agent] + idx_observation_check_agent])
+
+        ## 3. PROCESS DATA: Get the state vector and process it 
+
+        if self.reset_count > 0:
+            for agent in self.agents_names:
+                # amount of observations in the agent 
+                obs_dict_arr = []
+                for observation_check_agent in list(self.config[agent]['obs_order']):
+                    for idx_observation_check_agent in self.config[agent]['obs_order'][observation_check_agent]:            
+                        obs_dict_arr.append(state[self.heads_reference[observation_check_agent]] + idx_observation_check_agent)
+                
+                reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
+                done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
+                obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
+                truncated_dict[agent] = False
+                if agent in done_dict:
+                    all_done = all_done and done_dict[agent]
+
+        else:
+            obs_dict = self.dummy_obs
+            reward_dict = self.dummy_reward
+            done_dict = self.dummy_dones
+            truncated_dict = self.dummy_truncated
             
-            reward_dict[agent] = state[self.heads_reference[agent] + self.config[agent]['can_show'] ] 
-            done_dict[agent] =  bool(state[self.heads_reference[agent] + self.config[agent]['can_show'] + 1])
-            #if done_dict[agent] == False:
-            #obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.observation_space.dtype) # Add all states needed for agent 
-            obs_dict[agent] = np.asarray(obs_dict_arr, dtype=self.obs_space_dict[agent].dtype) # Add all states needed for agent 
-            #else:
-            #    del obs_dict[agent]
-            #    del done_dict[agent]
-            truncated_dict[agent] = False
-            if agent in done_dict:
-                all_done = all_done and done_dict[agent]
             
-            
-
-        # for idx, n in enumerate(total_obs):
-        #     # extract agent parameters for episode 
-        #     skip = 3 + sum(total_obs[:idx])
-        #     id = state[idx * skip]
-        #     # obs = [state[1 + idx * skip: 1 + idx * skip + 1 ], state[1 + (idx + 1) * skip: 1 + idx * skip + 1 ]]#total_obs[idx]] # aqui es donde no cuadra
-        #     obs = [2, 6] 
-        #     reward = state[1 + idx * skip + 1 ]# total_obs[idx]]
-        #     done = state[2 + idx * skip + 1] #  total_obs[idx]]
-            
-        #     current_agent_name = self.agent_names[idx] # agent name from dicitonary 
-
-        #     # update each dictionary from major data 
-        #     obs_dict[current_agent_name] = np.array(obs, dtype= np.int16)
-        #     reward_dict[current_agent_name] = reward
-        #     done_dict[current_agent_name] = bool(done)
-        #     truncated_dict[current_agent_name] = False
-
-        #     all_done = all_done and done 
-
-        #     acum += n
 
         done_dict["__all__"] = bool(all_done )
         truncated_dict["__all__"] = False 
 
-        # create dictionary 
         self.obs_dict = obs_dict
 
         info = {}
 
-        print(" Dicts ")
-        print("-obs: ")
-        print(obs_dict, end = "\n \n")
-        print("-reward: ")
-        print(reward_dict, end = "\n \n")
-        print("-done: ")
-        print(done_dict, end = "\n \n")
-        print("-truncated: ")
-        print(truncated_dict, end = "\n \n")
         return obs_dict, reward_dict, done_dict, truncated_dict, info
     
 
@@ -578,20 +571,25 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             ---
 
         """
-        print('[RESETTING]')
-        print('[OBS]:', self.obs_dict)
-        obs_dict = self.get_dict_template() # from agents names 
-        for agent in obs_dict:
-            #obs_dict[agent] = np.asarray(self.observation_space.sample(), dtype=self.observation_space.dtype)
-            obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
-        print("- Obs_dict: ")
-        print(obs_dict)
+        if self.dummy_action[self.agents_names[0]] == '':
+            print("FIRST RESET")
+            for agent in self.agents_names:
+                self.dummy_action[agent] = self.act_space_dict[agent].sample()
+            obs_dict, self.reward_dict, self.done_dict, self.truncated_dict, self.info = self.step(self.dummy_action)
+        else:
+            print('[RESETTING]')
+            obs_dict = self.get_dict_template() # from agents names 
+            for agent in obs_dict:
+                obs_dict[agent] = np.asarray(self.obs_dict[agent], dtype=self.obs_space_dict[agent].dtype)
+            print("OBS DICT: ", obs_dict)
+        self.reset_count = self.reset_count+1
         return obs_dict, {}
 
-
-
+    def set_ID(self, ID):
+        self.ID = ID
     
-
+    def get_ID(self):
+        return self.ID
 
 
 

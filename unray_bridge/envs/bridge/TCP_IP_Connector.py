@@ -16,10 +16,17 @@
     =====================================================
 """
 import socket, sys
+from typing import Any
 import numpy as np
 
 
+class mySocket(socket.socket):
+    def __init__(self, family, type):
+        super().__init__(socket.AF_INET, socket.SOCK_STREAM)
+        
 
+    def __reduce__(self):
+        return (self.__class__, (socket.AF_INET, socket.SOCK_STREAM))
 
 
 class ClientHandler():
@@ -28,14 +35,28 @@ class ClientHandler():
     Client Handler 
     
     """
-    def __init__(self, ip = 'localhost', port = 10010): 
+    def __init__(self, ip = 'localhost', port = 9443): 
         self.connected = False 
         self.ip = ip 
         self.port = port 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     
-    def connect(self): 
+        
+        
+        
+    def set_socket(self, ip = False):
+
+        self.socket = mySocket(socket.AF_INET, socket.SOCK_STREAM) 
+        return self.socket
+
+    def get_socket(self):
+        return self.sock
+
+    def set_port(self, new_port):  
+        self.port = new_port
+    
+    def connect(self, c_sock): 
+        
         server_address = (self.ip, self.port)
         print('[ CONNECTION ] connecting to {} port {}'.format(*server_address))
 
@@ -44,7 +65,7 @@ class ClientHandler():
         
         while not self.connected:
             try:
-                self.sock.connect(server_address)
+                c_sock.connect(server_address)
                 self.connected = True 
             except: 
                 count += 1
@@ -54,6 +75,7 @@ class ClientHandler():
                     if group_count % 5 == 0: 
                         
                         break 
+            return c_sock
 
         if not self.connected: 
             print("Connection Timeout!")          
@@ -65,61 +87,55 @@ class ClientHandler():
         
         
 
-    def send(self, msg, __BUFFER_DATA_SIZE = 32):
+    def send(self, msg, a_sock,  __BUFFER_DATA_SIZE = 32):
         if not self.connected:
             assert "No server connection. Please check"
-        print("[ SEND ]", end = " ")
-        #data_size = len(msg)
-        #data_sent = b''
-        self.sock.send(msg)
-        print(msg)
+        a_sock.settimeout(1)
+        try:
+            a_sock.send(msg)
+        except:
+            pass
+
+        
         
     
-    def recv(self, expected_bytes):
-        
+    def recv(self, expected_bytes, b_sock):
+        count = 0
         res = b''
-        #respuesta = np.emtpy(1, dtype=np.single)
         nuevos_datos = b''
-        self.sock.setblocking(True)
+        b_sock.settimeout(1)
        
         try:
-            while len(res) < expected_bytes:
-                nuevos_datos = self.sock.recv(expected_bytes - len(res))
-                if not nuevos_datos:
-                    # Handle disconnection
-                    break    
-                res+=nuevos_datos
-                
+            res = b_sock.recv(expected_bytes)
+        
+            
         except socket.error as e:
+            "If the socket doesn't receive any data"
             print(f"Error : {e}")
-            #respuesta = np.frombuffer(res, dtype=np.single)
-            #print(respuesta)
-            #respuesta = np.append(np.frombuffer(nuevos_datos, dtype=np.single))       
-        finally:
-            self.sock.setblocking(False)
-        #print(res)
-        respuesta = np.frombuffer(res, dtype=np.double)
-        print("[ RECV ]", end = " " )   
-        print(respuesta)
+            res = np.array([-1], dtype=np.double)
+            print("RES", res)
+            res = res.tobytes()
+
+        respuesta = np.frombuffer(res, dtype=np.double) 
 
         return respuesta 
         
 
 
-    def close(self): 
+    def close(self, c_sock): 
         print("Closing connection...")
         self.connected = False
-        self.sock.close()
+        c_sock.close()
         print("Connection closed! Bye.")
 
 
-
+"""
 class ServerHandler():
     
-    """
-    Server Handler 
+    
+#Server Handler 
 
-    """
+    
     def __init__(self, IP = 'localhost', PORT = 10000, max_connections = 2):
         self._IP   = IP
         self._PORT = PORT 
@@ -174,5 +190,5 @@ class ServerHandler():
     def test_connection(self): 
         pass 
 
-
+"""
 

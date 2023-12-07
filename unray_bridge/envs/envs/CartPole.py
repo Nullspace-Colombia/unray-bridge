@@ -1,10 +1,11 @@
 
 from unray_bridge.envs.bridge_env import BridgeEnv
+from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
 from unray_bridge.envs.spaces import BridgeSpaces
 
 import numpy as np 
 
-def get_env(): 
+def get_env(_ip = 'localhost', _port=9443, instance = False, amount_of_envs = 1, ID = 0): 
 
     high = np.array(
                 [
@@ -34,16 +35,22 @@ def get_env():
             "space": BridgeSpaces.Discrete(2), 
             "description": "General coordinates of the cartpole"
     }
+    config_cartpole = {
+        
+        "observation": BridgeSpaces.Box(-high, high),
+        "action": BridgeSpaces.Discrete(2),
+        
+    }
 
     # Create an instanec of the bridgeEnv defining parameters.
 
     return lambda config: BridgeEnv(
         name = "CartpoleEnv", 
-        ip = 'localhost',
-        port = 10010,
+        ip = _ip,
+        port = _port,
         config = {
             "observation": obs_config, 
             "action": act_config
         },
-        first_connection = False
+        first_connection = False,
     )
