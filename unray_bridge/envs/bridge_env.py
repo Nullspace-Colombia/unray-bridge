@@ -529,6 +529,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         head = 0
         heads = []
 
+
         ## 3. PROCESS DATA: Get the state vector and process it 
 
         if self.reset_count > 0:
