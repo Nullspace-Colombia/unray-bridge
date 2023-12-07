@@ -23,8 +23,9 @@ class UnrayConfig():
         worker.env.set_ID(ID)
 
 
-    def configure_algo(self, config, env_t, env_name):
-
+    def configure_algo(self, config, env_t):
+        
+        env_name = env_t.get_name()
         if config.num_rollout_workers > 0:
             num_workers = config.num_rollout_workers
             config.rollouts(num_rollout_workers=0)
