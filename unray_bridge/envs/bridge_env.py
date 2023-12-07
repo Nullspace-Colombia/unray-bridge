@@ -55,6 +55,7 @@ class BridgeEnv(gymEnv):
                  validation = False, 
                  multiagent = False):
                  
+        self.client_handler = ClientHandler(ip, port)
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
         
@@ -69,10 +70,10 @@ class BridgeEnv(gymEnv):
 
         self.has_handler = False # ClientHandler to begin with connection
         self.has_connection = False
-
+        self.dummy_action = None
         self.validation = validation
         self.multiagent = multiagent 
-
+        self.reset_count = -2
         
         try: 
             self.observation_space = self.observation_config["space"] # Get imported space 
@@ -87,8 +88,8 @@ class BridgeEnv(gymEnv):
     
     def step(self, action): 
 
-        if not self.has_connection:
-            self.connect()
+        #if not self.has_connection:
+        #    self.connect()
 
         action=np.array(action,dtype=np.single)
 
@@ -99,37 +100,90 @@ class BridgeEnv(gymEnv):
         else:
             assert "No valid action type. Only supports <list> or <numpy.ndarray> given %s" % (type(action))
         
-        obs = self.obs 
 
-        # 2. Cast the action vector to a byte buffer for send.
+        state = np.empty(self.observation_space.shape, dtype=self.observation_space.dtype)
         action_buff = action.tobytes()
         n = self.get_amount_obs()
-        # 3. Send the action vector to the environment. 
-        self.handler.send(action_buff) # Send action an wait response 
-        data_size = 8*(n+2)
 
-        state = self.handler.recv(data_size) # Get state vetor 
-        obs = state[0:n]
-        self.obs = obs 
        
+        if self.reset_count > 0:
+            
+        # 2. Cast the action vector to a byte buffer for send.
+            
+        # 3. Send the action vector to the environment. 
+        #self.handler.send(action_buff) # Send action an wait response 
+            data_size = 8*(n+2)
+
+        #state = self.handler.recv(data_size) # Get state vetor 
+
+            self.client_handler.send(action_buff, self.consock) # Send to socket in UE5
+            state = self.client_handler.recv(data_size, self.consock)
+            
+        else :
+            t_obs = self.observation_space.sample()
+            t_reward = 0
+            t_terminated = False
+            state = []
+            state = np.append(t_obs,t_reward)
+            state = np.append(state, t_terminated)
+            
+           
+        obs = state[0:n]
+        reward = state[n]
+        terminated = bool(state[n+1])
+        self.obs = obs 
         # 4. Rewards System
         # For each frame within the termination limits, 
         ##reward = self.counter
         
-        reward = state[n]
-        terminated = bool(state[n+1])
+        
 
-    
+        state = []
         # Additional metadata [ignore ]
         truncated = False
         info = {}
 
         return obs, reward, terminated, truncated, info
 
+    def connect_socket(self):
+        """
+            Connect Socket 
+            ---
+            When each env is called with foreach_env, this method will be invoked 
+            in order to create and connect the individual socket for each instance. 
+
+            1. Changes the port based on the env id. 
+            2. Get the socket instance 
+            3. Connect to given address (self.ip, cutom_socket)
+
+        """
+        self.client_handler.set_port(self.port)
+        self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
+        self.client_handler.connect(self.consock) # Intenta conectarse 
     
+    def get_socket(self):
+        return self.consock
+
+    def set_socket(self, sock):
+        """
+        Set Socket
+
+        """
+        self.consock = sock
+        
     def reset(self, *, seed=None, options=None):
-        print('[OBS]:', self.get_amount_obs())
-        return np.asarray(self.obs, dtype=self.observation_space.dtype), {}
+
+        if self.dummy_action is None:
+            print("FIRST RESET")
+            self.dummy_action = self.action_space.sample()
+            obs, self.reward, self.done, self.truncated, self.info = self.step(self.dummy_action)
+        else:
+            print('[RESETTING]')
+            obs = np.asarray(self.obs, dtype=self.observation_space.dtype)
+
+        self.reset_count = self.reset_count+1
+
+        return obs, {}
 
     def get_multiagent_state_dict(received_vector: np.array): 
         state = {}
@@ -376,23 +430,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             agent_dict_template[agent] = ""
 
         return agent_dict_template
-    
-    def send_actions_to_socket(self, buffer2send) -> None:
-        """
-            send data through socket
-            ---
-            @args buffer2send {np.array} - array to be converted and send to UE5 
-            @returns recv_data {np.array} - data send as response from socket 
-        """
-        try:
-            action_buff = np.asarray(buffer2send, dtype=np.single).tobytes()
-            self.socket.send(action_buff, self.socket.get_socket())
-            self.data = self.recv_data()
-        except:
-            return []
-
-        return self.data
-    
+        
     def connect_socket(self):
         """
             Connect Socket 
@@ -409,17 +447,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
         self.client_handler.connect(self.consock) # Intenta conectarse 
     
-    def get_socket(self):
-        return self.consock
-
-    def set_socket(self, sock):
-        """
-        Set Socket
-
-        """
-        self.consock = sock
-
-        
     def step(self, actions: dict) -> None:
         """
         Step 
@@ -472,9 +499,10 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             #receive state vector from UE5
             state = self.client_handler.recv(data_size, self.consock)
             
-            #print(f"[STATE]:{state}")
+                
             
-        else:
+            #print(f"[STATE]:{state}")
+        else:    
             #If is the first reset, get random data
             
             for agent in self.agents_names:
@@ -517,6 +545,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                 truncated_dict[agent] = False
                 if agent in done_dict:
                     all_done = all_done and done_dict[agent]
+
         else:
             obs_dict = self.dummy_obs
             reward_dict = self.dummy_reward
@@ -532,15 +561,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         info = {}
 
-        #print(" Dicts ")
-        #print("-obs: ")
-        #print(obs_dict, end = "\n \n")
-        #print("-reward: ")
-        #print(reward_dict, end = "\n \n")
-        #print("-done: ")
-        #print(done_dict, end = "\n \n")
-        #print("-truncated: ")
-        #print(truncated_dict, end = "\n \n")
         return obs_dict, reward_dict, done_dict, truncated_dict, info
     
 
@@ -563,15 +583,6 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
             print("OBS DICT: ", obs_dict)
         self.reset_count = self.reset_count+1
         return obs_dict, {}
-    
-    def create_handler(self): 
-        self.handler = ClientHandler(self.ip, self.port) # Create a Handler 
-        self.has_handler = True 
-
-    def set_bridge(self, conn_bridge):
-        self.bridge = conn_bridge
-        
-        return id(conn_bridge)
 
     def set_ID(self, ID):
         self.ID = ID

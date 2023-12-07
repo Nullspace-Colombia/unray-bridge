@@ -3,7 +3,7 @@ from unray_bridge.envs.bridge_env import BridgeEnv
 from unray_bridge.envs.spaces import BridgeSpaces
 
 import numpy as np 
-
+"""
 def get_env(): 
 
     obs_config = {
@@ -27,3 +27,4 @@ def get_env():
             "action": act_config
         },
     )
+"""

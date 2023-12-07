@@ -112,7 +112,8 @@ class ClientHandler():
         except socket.error as e:
             "If the socket doesn't receive any data"
             print(f"Error : {e}")
-            res = np.array([0,0,0,0,0,0,0,0], dtype=np.double)
+            res = np.array([-1], dtype=np.double)
+            print("RES", res)
             res = res.tobytes()
 
         respuesta = np.frombuffer(res, dtype=np.double) 

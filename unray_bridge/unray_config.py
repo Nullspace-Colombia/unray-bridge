@@ -32,9 +32,7 @@ class UnrayConfig():
             num_workers = 0
         
         
-        register_env(env_name, env_t.get_env(
-            amount_of_envs= 1
-        ))
+        register_env(env_name, env_t.get_env())
         
     
         print("ENV REGISTERED")
@@ -49,6 +47,7 @@ class UnrayConfig():
             algo.workers.foreach_worker(lambda worker: worker.env.connect_socket(), local_worker=False)
             
         else:
+            print("CONNECTING LOCAL WORKER")
             algo.workers.local_worker().env.connect_socket()
 
         return algo
