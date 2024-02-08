@@ -191,6 +191,48 @@ algo = unray_config.configure_algo(algo_config, env)
 
 Now, Unray is ready to train your Single Agent Environment.
 
+### Single Agent Example: Cartpole
+
+We'll take the classic cartpole example to start with unray.
+
+First, let's create the action and observation dictionary. We are using the cartpole problem definition used in Gymnausium: https://gymnasium.farama.org/environments/classic_control/cart_pole/
+
+```python3
+high = np.array(
+                [
+                    1000,
+                    np.finfo(np.float32).max,
+                    140,
+                    np.finfo(np.float32).max,
+                ],
+                dtype=np.float32,
+            )
+
+## Configurations Dictionaries
+# Define all the observation/actions spaces to be used in the Custom environment 
+# BridgeSpaces area based from gym.spaces. Check the docs for more information on how to use then. 
+
+# for this example we are using a a BoxSpace for our observations and a 
+# Discrete space for our action space.
+
+
+obs_config = {
+            "space": BridgeSpaces.Box(-high, high), 
+            "description": "General coordinates of the cartpole"
+        }
+
+act_config = {
+            "space": BridgeSpaces.Discrete(2), 
+            "description": "General coordinates of the cartpole"
+    }
+
+env_config = {
+        "observation": obs_config, 
+            "action": act_config
+        }
+```
+
+
 ## Multiagent 
 In order to define a custom environment, you have to create an action and observation dictionary. This is called a *env_config* dict. 
 ```python3
@@ -244,12 +286,12 @@ unray_config = UnrayConfig()
 
 This will allow us to configure our algorithm to be ready for the communication with Unreal Eninge.
 
-Next, we'll need to create an instance of a Single Agent Environment, which takes our *env_config* as an argument and a name for our env:
+Next, we'll need to create an instance of a MultiAgent Environment, which takes our *env_config* as an argument and a name for our env:
 
 ```
-#Create Instance of Single Agent Environment
+#Create Instance of MultiAgent Environment
 
-env = SingleAgentEnv(env_config, 'env_name')
+env = MultiAgentEnv(env_config, 'env_name')
 ```
 
 Now, we can use unray without problem. After creating the config for our algorithm (like PPO), we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
@@ -263,7 +305,7 @@ Now, Unray is ready to train your Single Agent Environment.
 
 
 ### Multiagent Workflow 
-As well as in the single-agent case, the environment dynamics are defined externally in the UE5 Scenario. The BridgeEnv lets RLlib comunicate with the enviornment via TPC/IP connection, sending the agent actions defined by ray algorithms and reciving the observation vectors from the environment for the trainer to train. The `MultiAgentBridgeEnv`creates the **connection_handler** that allow to maintain the socket communication. 
+As well as in the single-agent case, the environment dynamics are defined externally in the UE5 Scenario. Unray lets RLlib comunicate with the enviornment via TPC/IP connection, sending the agent actions defined by ray algorithms and reciving the observation vectors from the environment for the trainer to train. 
 
 #### 1. How does the multiagent dictionaries are structured for sending to UE5 ? 
 Suppose we have *n-agents* in the environment. Each of them with a given **a_i** action vector. This means that we have a total data of the sum of sizes for each action vector. Hence, stacking these vectors we got the final buffer that is send to the socket server from UE5.
@@ -288,27 +330,37 @@ Hence we got:
 Defining the env_config as follows: 
 
 ```python
-  env_config  = {
-    "agent-1":{
-        "observation": BridgeSpaces.MultiDiscrete([64], [64]),
-        "action": BridgeSpaces.Discrete(4),
-    }, 
-    "agent-2":{
-        "observation": BridgeSpaces.MultiDiscrete([64], [64]),
-        "action": BridgeSpaces.Discrete(4),
+env_config  = {
+        "agent-1":{
+            "observation": BridgeSpaces.MultiDiscrete([64, 64]),
+            "action": BridgeSpaces.Discrete(4),
+            "can_show": 1, # Amount of observations int obs stack
+            "can_see": 2, # Amount of observations required in training 
+            "obs_order": {   
+                "agent-1": [0], 
+                "agent-2": [0]
+            }
+        }, 
+        "agent-2":{
+            "observation": BridgeSpaces.MultiDiscrete([64, 64]),
+            "action": BridgeSpaces.Discrete(4),
+            "can_show": 1, # Amount of observations int obs stack
+            "can_see": 2,
+            "obs_order": {
+                "agent-2": [0], 
+                "agent-1": [0]
+            }
+        }
     }
-}
 ```
 
 Create the environment
 
 ```python
-env = MultiAgentBridgeEnv(
-    name = "multiagent-arena",
-    ip = 'localhost',
-    port = 10110, 
-    config = env_config
-)
+    
+    unray_config = UnrayConfig()
+    arena = MultiAgentEnv(env_config, "multiagents-arena")
+    algo = unray_config.configure_algo(ppo_config, arena)
 ```
 
 
