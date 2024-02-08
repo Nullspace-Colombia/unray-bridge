@@ -151,7 +151,45 @@ If everything is correct, the four envs will start to move.
 
 # RL Environment for simple training
 ## Single Agent
-[In dev process]
+In order to define a custom environment, you have to create an action and observation dictionary. This is called a *env_config* dict. 
+```python3
+# Define the env_config dict for each agent. 
+env_config = {
+  "observation": <Space>,
+  "action" :<Space>
+}
+```
+
+Each Space is taken from BridgeSpace
+```python
+from unray_bridge.envs.spaces import BridgeSpaces 
+```
+Once you have your *env_config* dict ready, we'll create the ```Unray``` object, which will allow us to train our environment with Unray. 
+
+```
+#Create Unray object
+
+unray_config = UnrayConfig()
+```
+
+This will allow us to configure our algorithm to be ready for the communication with Unreal Eninge.
+
+Next, we'll need to create an instance of a Single Agent Environment, which takes our *env_config* as an argument and a name for our env:
+
+```
+#Create Instance of Single Agent Environment
+
+env = SingleAgentEnv(env_config, 'env_name')
+```
+
+Now, we can use unray without problem. After creating the config for our algorithm (like PPO), we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
+
+```
+#Create Algo Instance
+algo = unray_config.configure_algo(algo_config, env)
+```
+
+Now, Unray is ready to train your Single Agent Environment.
 
 ## Multiagent 
 In order to define a custom environment, you have to create an action and observation dictionary. This is called a *env_config* dict. 
@@ -160,12 +198,26 @@ In order to define a custom environment, you have to create an action and observ
 env_config = {
   "agent-1": {
     "observation": <Space>,
-    "action": <Space>
+    "action": <Space>,
+    "can_show": int,
+    "can_see": int,
+    "obs_order":{
+         "agent-1": i,
+         "agent-2": j,
+         ....
+      }
     }, 
   "agent-2": {
     "observation": <Space>,
-    "action": <Space>
-    }
+    "action": <Space>,
+    "can_show": int,
+    "can_see": int,
+    "obs_order":{
+         "agent-1": i,
+         "agent-2": j,
+         ....
+      }
+    }, 
     ...
 ```
 
@@ -173,27 +225,42 @@ Each Space is taken from BridgeSpace
 ```python
 from unray_bridge.envs.spaces import BridgeSpaces 
 ```
+This dictionary defines the independent spaces for each of the agents. You will also notice that for each agent there are three new parameters: ```can_show```, ```can_see``` and ```obs_order```. This parameters will help us define how each agent will see the other agents in the environment.
+
+| Parameter | Description |
+|--------|---------|
+|```can_show```| The observations which will be available to other agents in the environment | 
+| ```can_see```| How many observations can this agent see from other agents |
+| ```obs_order```  | The order of the observations this agent can see from the other agents |
 
 
-This dictionary defines the independent spaces for each of the agents. Then, the environment is intantiated inherited from MultiAgentBridgeEnv from `unray_bridge`
-
-```python3
-from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
-```
-
-Contructor needs environment name, ip, port and the config.
-
-```python
-
-
-env = MultiAgentBridgeEnv(
-    name = "multiagent-arena",
-    ip = 'localhost',
-    port = 10110, 
-    config = env_config
-)
+Once you have your *env_config* dict ready, we'll create the ```Unray``` object, which will allow us to train our environment with Unray. 
 
 ```
+#Create Unray object
+
+unray_config = UnrayConfig()
+```
+
+This will allow us to configure our algorithm to be ready for the communication with Unreal Eninge.
+
+Next, we'll need to create an instance of a Single Agent Environment, which takes our *env_config* as an argument and a name for our env:
+
+```
+#Create Instance of Single Agent Environment
+
+env = SingleAgentEnv(env_config, 'env_name')
+```
+
+Now, we can use unray without problem. After creating the config for our algorithm (like PPO), we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
+
+```
+#Create Algo Instance
+algo = unray_config.configure_algo(algo_config, env)
+```
+
+Now, Unray is ready to train your Single Agent Environment.
+
 
 ### Multiagent Workflow 
 As well as in the single-agent case, the environment dynamics are defined externally in the UE5 Scenario. The BridgeEnv lets RLlib comunicate with the enviornment via TPC/IP connection, sending the agent actions defined by ray algorithms and reciving the observation vectors from the environment for the trainer to train. The `MultiAgentBridgeEnv`creates the **connection_handler** that allow to maintain the socket communication. 
