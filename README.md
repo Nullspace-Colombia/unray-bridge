@@ -354,7 +354,7 @@ env_config  = {
     }
 ```
 
-Create the environment
+Configure the environment
 
 ```python
     
