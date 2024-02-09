@@ -184,7 +184,7 @@ Next, we'll need to create an instance of a Single Agent Environment, which take
 env = SingleAgentEnv(env_config, 'env_name')
 ```
 
-Now, we can use unray without problem. After creating the config for our algorithm (like PPO), we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
+Now, we can use unray without problem. After creating the config for our algorithm (like PPO) using RLlib, we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
 
 ```
 #Create Algo Instance
