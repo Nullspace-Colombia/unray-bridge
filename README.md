@@ -150,6 +150,8 @@ If everything is correct, the four envs will start to move.
 
 
 # RL Environment for simple training
+NOTE: We recommend reading this documentation with a basic RLlib knowledge. You can read the RLlib documentation here: https://docs.ray.io/en/latest/rllib/index.html
+
 ## Single Agent
 In order to define a custom environment, you have to create an action and observation dictionary. This is called a *env_config* dict. 
 ```python3
