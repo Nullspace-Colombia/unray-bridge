@@ -216,19 +216,9 @@ high = np.array(
 # Discrete space for our action space.
 
 
-obs_config = {
-            "space": BridgeSpaces.Box(-high, high), 
-            "description": "General coordinates of the cartpole"
-        }
-
-act_config = {
-            "space": BridgeSpaces.Discrete(2), 
-            "description": "General coordinates of the cartpole"
-    }
-
 env_config = {
-        "observation": obs_config, 
-            "action": act_config
+        "observation": BridgeSpaces.Box(-high, high), 
+            "action": BridgeSpaces.Discrete(2)
         }
 ```
 
