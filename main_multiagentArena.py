@@ -1,4 +1,4 @@
-from unray_bridge.envs.envs import MultiAgentArena
+from envs import MultiAgentArena
 from unray_bridge.envs.base_env import MultiAgentEnv
 
 from unray_bridge.unray_config import UnrayConfig
