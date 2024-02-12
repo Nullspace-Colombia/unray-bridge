@@ -1,18 +1,9 @@
-
 from ray.tune.registry import register_env
-     
-
-from unray_bridge.envs.envs import MultiAgentArena
-from unray_bridge.envs.bridge_env import MultiAgentBridgeEnv
-
-from ray.rllib.algorithms.ppo import PPOConfig
-
-
-
+from unray_bridge.gui import print_title
 
 class UnrayConfig():
     def __init__(self):
-        
+        print_title()
         pass
         
     def get_ID(self, worker):

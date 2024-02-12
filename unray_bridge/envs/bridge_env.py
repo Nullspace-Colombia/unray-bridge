@@ -11,10 +11,6 @@
     -   BridgeEnv 
     -   MultiAgentBridgeEnv
 
-    In order to create a custom env, you have to inherit this 
-    environments and createa (MultiAgent)BridgeEnv instance 
-    with a initial configuration. 
-
     You have to define a observation_space and actions_space from 
     BridgeSpaces (@see unray_bridge.envs.spaces).
 
@@ -30,8 +26,6 @@ from .bridge.TCP_IP_Connector import ClientHandler
 from unray_bridge.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
-import ray
-import gymnasium.spaces as spaces
 import numpy as np
 from socket import socket
 from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler

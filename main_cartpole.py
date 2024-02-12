@@ -1,9 +1,7 @@
 
 from unray_bridge.envs.envs import CartPole
 from unray_bridge.envs.base_env import SingleAgentEnv
-
 from unray_bridge.unray_config import UnrayConfig
-
 from ray.rllib.algorithms.ppo import PPOConfig
 
 if __name__ == '__main__':
