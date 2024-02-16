@@ -23,12 +23,12 @@
 
 """
 from .bridge.TCP_IP_Connector import ClientHandler
-from unray_bridge.envs.spaces import BridgeSpaces
+from unrayf.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from socket import socket
-from unray_bridge.envs.bridge.TCP_IP_Connector import ClientHandler
+from unrayf.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -57,11 +57,6 @@ class BridgeEnv(gymEnv):
             print("error")
             raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
         self.name = name # environment name for later id 
-
-
-        self.observation_config = config["observation"]
-        self.action_config = config["action"]
-
         self.has_handler = False # ClientHandler to begin with connection
         self.has_connection = False
         self.dummy_action = None
@@ -70,8 +65,8 @@ class BridgeEnv(gymEnv):
         self.reset_count = -2
         
         try: 
-            self.observation_space = self.observation_config["space"] # Get imported space 
-            self.action_space = self.action_config["space"]
+            self.observation_space = config["observation"] # Get imported space 
+            self.action_space = config["action"]
         except: 
             raise ValueError("No correct space selected")
 
