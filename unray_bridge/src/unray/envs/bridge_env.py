@@ -23,12 +23,12 @@
 
 """
 from .bridge.TCP_IP_Connector import ClientHandler
-from unrayf.envs.spaces import BridgeSpaces
+from unray.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from socket import socket
-from unrayf.envs.bridge.TCP_IP_Connector import ClientHandler
+from unray.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """

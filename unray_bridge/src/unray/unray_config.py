@@ -1,5 +1,5 @@
 from ray.tune.registry import register_env
-from unrayf.gui import print_title
+from unray.gui import print_title
 
 class UnrayConfig():
     def __init__(self):

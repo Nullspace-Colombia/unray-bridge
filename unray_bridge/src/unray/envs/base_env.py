@@ -1,5 +1,5 @@
-from unrayf.envs.bridge_env import BridgeEnv
-from unrayf.envs.bridge_env import MultiAgentBridgeEnv
+from unray.envs.bridge_env import BridgeEnv
+from unray.envs.bridge_env import MultiAgentBridgeEnv
 
 class SingleAgentEnv():
     def __init__(self, config, env_name, ip = 'localhost' , port = 9443):

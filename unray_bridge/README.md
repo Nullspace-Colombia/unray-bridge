@@ -63,9 +63,9 @@ from ray.rllib.algorithms.ppo import PPOConfig
 
 algo_config = PPOConfig()
 
-algo_config = ppo_config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-algo_config = ppo_config.resources(num_gpus=0)  
-algo_config = ppo_config.rollouts(num_rollout_workers=0)
+algo_config = algo_config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
+algo_config = algo_config.resources(num_gpus=0)  
+algo_config = algo_config.rollouts(num_rollout_workers=0)
 ```
 
 Once you've create the config, we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the single agent environment instance
@@ -84,6 +84,7 @@ We'll take the classic cartpole example to start with unray.
 First, let's create the action and observation dictionary. We are using the cartpole problem definition used in Gymnausium: https://gymnasium.farama.org/environments/classic_control/cart_pole/
 
 ```python3
+from unray.envs.spaces import BridgeSpaces 
 high = np.array(
                 [
                     1000,
@@ -108,6 +109,26 @@ env_config = {
         }
 ```
 
+Configure the environment
+
+```python
+    
+    from unray.envs.base_env import SingleAgentEnv
+    from unray.unray_config import UnrayConfig
+    from ray.rllib.algorithms.ppo import PPOConfig
+
+    ppo_config = PPOConfig()
+
+    ppo_config = ppo_config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
+    ppo_config = ppo_config.resources(num_gpus=0)  
+    ppo_config = ppo_config.rollouts(num_rollout_workers=0)  
+
+    unray_config = UnrayConfig()
+    
+    cartpole = SingleAgentEnv(env_config, "cartpole")
+    algo = unray_config.configure_algo(ppo_config, cartpole)
+
+```
 
 
 ## Multiagent 
@@ -139,6 +160,7 @@ env_config = {
       }
     }, 
     ...
+}
 ```
 
 Each Space is taken from BridgeSpace
@@ -191,9 +213,9 @@ from ray.rllib.algorithms.ppo import PPOConfig
 
 algo_config = PPOConfig()
 
-algo_config = ppo_config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
-algo_config = ppo_config.resources(num_gpus=0)  
-algo_config = ppo_config.rollouts(num_rollout_workers=0)
+algo_config = algo_config.training(gamma=0.9, lr=0.01, kl_coeff=0.3)  
+algo_config = algo_config.resources(num_gpus=0)  
+algo_config = algo_config.rollouts(num_rollout_workers=0)
 ```
 
 Once you've create the config, we'll create our algorithm instance using the ```configure_algo``` function from our Unray object, which takes in two arguments: our algorithm config and the multiagent environment instance.
@@ -228,6 +250,7 @@ Hence we got:
 Defining the env_config as follows: 
 
 ```python
+from unray.envs.spaces import BridgeSpaces 
 env_config  = {
         "agent-1":{
             "observation": BridgeSpaces.MultiDiscrete([64, 64]),
