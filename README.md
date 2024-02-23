@@ -90,6 +90,13 @@ In the Blueprints folder you'll find a ```SingleAgent_Env``` Blueprint.
 
 You can create your env with this Blueprint as a parent Class.
 
+In the Viewport of your env blueprint class, drag one of the ```Conector_SA``` from the Content Drawer and place it where you want. 
+
+In the Event Graph of your env blueprint class, you'll have to do a few things to configure your env. 
+
+Set your Agent to the ```Agent``` variable that bellongs to the ```SingleAgent_Env``` class and add the following functions in your env class event graph:
+
+![SingleAgentEnv](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/1f9a498d-af3c-4076-b890-6e42bc67097c)
 
 ### MultiAgent Environments
 
@@ -99,7 +106,7 @@ In the Blueprints folder you'll find a ```MultiAgent_Env``` Blueprint.
 
 You can create your env with this Blueprint as a parent Class.
 
-In the Viewport of your env blueprint class, drag one of the ```Conector_MA```  you need from the Content Drawer and place it where you want. 
+In the Viewport of your env blueprint class, drag one of the ```Conector_SA``` from the Content Drawer and place it where you want. 
 
 In the Event Graph of your env blueprint class, you'll have to do a few things to configure your env. 
 
@@ -109,7 +116,7 @@ Then, you need to add the agents in your env to an ```Agents``` array, which bel
 
 ![AddAgents](https://github.com/Nullspace-Colombia/Multiagents/assets/55969494/7f6670bc-7bc0-4163-b854-652bcefdb9b3)
 
-Finally, you'll have to add the following functions to your env class:
+Finally, you'll have to add the following functions to your env class: 
 
 ![MultiAgentEnv](https://github.com/Nullspace-Colombia/Multiagents/assets/55969494/ba178e2f-6dc9-4fd0-9d7a-61f71d9e06ef)
 
