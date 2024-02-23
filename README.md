@@ -10,6 +10,12 @@ This repository contains all the files needed for usage in Python.
 
 We are currently using Unreal Engine 5.1. We recommend using the same version to ensure project stability.
 
+### Plugin Version
+
+We currently have version 1.1 of the plugin. If you still have version 1.0 please update to this new version.
+
+Mistakes regarding the parallel training of Single Agent Environment have been fixed. 
+
 ## Project Files
 
 In the Maps folder you'll find some examples to run:
@@ -61,6 +67,7 @@ In the Blueprints folder, you'll find the connectors for both single agent envs 
 
 If your environment is a single agent env, place a ```Connector_SA``` instance in your map. Once you do, you can select it and in the details panel you'll find the Default section. There, you'll find an Actor Agent variable, assign your agent to this variable. 
 
+
 ### MultiAgent Environments
 
 If your environment is a multiagent env, you'll need to place a ```Connector_MA``` instance in your map. Once you do, you can select it and in the details panel you'll find the Default section. There, you'll find an array called Actor Agents. 
@@ -71,9 +78,20 @@ To ensure the framework can recognise all the agents in your environment, add ea
 
 Remember that for each agent in your env, you'll have to implement the Reward, Done, Reset, Get State and Step functions.
 
+
+
 ## Parallel Trainning
 
 If you want to train several envs at the same time, we recommend you create your env as a Blueprint. 
+
+### Single Agent Environments
+
+In the Blueprints folder you'll find a ```SingleAgent_Env``` Blueprint.
+
+You can create your env with this Blueprint as a parent Class.
+
+
+### MultiAgent Environments
 
 In the Blueprints folder you'll find a ```MultiAgent_Env``` Blueprint.
 
@@ -81,7 +99,7 @@ In the Blueprints folder you'll find a ```MultiAgent_Env``` Blueprint.
 
 You can create your env with this Blueprint as a parent Class.
 
-In the Viewport of your env blueprint class, drag the connector you need from the Content Drawer and place it where you want. 
+In the Viewport of your env blueprint class, drag one of the ```Conector_MA```  you need from the Content Drawer and place it where you want. 
 
 In the Event Graph of your env blueprint class, you'll have to do a few things to configure your env. 
 
