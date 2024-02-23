@@ -92,6 +92,8 @@ You can create your env with this Blueprint as a parent Class.
 
 In the Viewport of your env blueprint class, drag one of the ```Conector_SA``` from the Content Drawer and place it where you want. 
 
+![single_connector](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/d9076dbe-2f21-4b14-af20-7e07d8de1905)
+
 In the Event Graph of your env blueprint class, you'll have to do a few things to configure your env. 
 
 Set your Agent to the ```Agent``` variable that bellongs to the ```SingleAgent_Env``` class and add the following functions in your env class event graph:
@@ -106,7 +108,11 @@ In the Blueprints folder you'll find a ```MultiAgent_Env``` Blueprint.
 
 You can create your env with this Blueprint as a parent Class.
 
-In the Viewport of your env blueprint class, drag one of the ```Conector_SA``` from the Content Drawer and place it where you want. 
+In the Viewport of your env blueprint class, drag one of the ```Conector_MA``` from the Content Drawer and place it where you want. 
+
+![single_connector](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/3fe4858b-df9c-4ad7-8b41-81db43d8c279)
+
+
 
 In the Event Graph of your env blueprint class, you'll have to do a few things to configure your env. 
 
