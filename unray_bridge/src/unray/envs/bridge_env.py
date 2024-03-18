@@ -47,12 +47,16 @@ class BridgeEnv(gymEnv):
                  config, 
                  first_connection = False, 
                  validation = False, 
-                 multiagent = False):
+                 multiagent = False,
+                 ID = int):
                  
-        self.client_handler = ClientHandler(ip, port)
+        
         self.ip = ip # IP Address for IP Connection 
         self.port = port 
-        
+        self.ID = ID
+
+        self.client_handler = ClientHandler(ip, port + ID)
+
         if not name:
             print("error")
             raise ValueError("no environment name defined. Please define a name for tour environment on the BridgeEnv constructor.")
@@ -146,7 +150,7 @@ class BridgeEnv(gymEnv):
             3. Connect to given address (self.ip, cutom_socket)
 
         """
-        self.client_handler.set_port(self.port)
+        self.client_handler.set_port(self.port + self.ID)
         self.consock = self.client_handler.set_socket() # Linkea el socket al handler 
         self.client_handler.connect(self.consock) # Intenta conectarse 
     
@@ -286,6 +290,12 @@ class BridgeEnv(gymEnv):
 
         """
         self.handler.close()
+
+    def set_ID(self, ID):
+        self.ID = ID
+    
+    def get_ID(self):
+        return self.ID
         
     
 class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
@@ -574,11 +584,7 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
         self.reset_count = self.reset_count+1
         return obs_dict, {}
 
-    def set_ID(self, ID):
-        self.ID = ID
-    
-    def get_ID(self):
-        return self.ID
+
 
 
 

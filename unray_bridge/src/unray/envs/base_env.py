@@ -2,11 +2,12 @@ from unray.envs.bridge_env import BridgeEnv
 from unray.envs.bridge_env import MultiAgentBridgeEnv
 
 class SingleAgentEnv():
-    def __init__(self, config, env_name, ip = 'localhost' , port = 9443):
+    def __init__(self, config, env_name, ip = 'localhost' , port = 9443, ID=1):
         self.env_ip = ip
         self.env_port = port
         self.env_config = config
         self.name = env_name
+        self.ID = ID
 
     def get_env(self):
         return lambda config: BridgeEnv(
@@ -15,6 +16,7 @@ class SingleAgentEnv():
             port = self.env_port,
             config = self.env_config,
             first_connection = False,
+            ID = self.ID
         )
     
     def get_name(self):
@@ -22,8 +24,7 @@ class SingleAgentEnv():
 
 class MultiAgentEnv(SingleAgentEnv):
     def __init__(self, config, env_name, ip='localhost', port=9443, ID = 1):
-        super().__init__(config, env_name, ip, port)
-        self.ID = ID
+        super().__init__(config, env_name, ip, port, ID)
 
     def get_env(self):
         return lambda config: MultiAgentBridgeEnv(
