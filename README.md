@@ -2,10 +2,6 @@
 
 Framework for communication between Unreal Engine and Python.
 
-Contents: 
-
-1. [Custom Envs in Unreal Engine](https://github.com/Nullspace-Colombia/unray-bridge?tab=readme-ov-file#custom-envs)
-
 # Unreal Engine
 
 ### Engine Version
