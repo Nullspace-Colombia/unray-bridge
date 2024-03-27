@@ -128,7 +128,7 @@ Finally, you'll have to add the following functions to your env class:
 This is to set the agents and set the ports in which the communication is going to happen.
 
 
-# UNRAY Bridge
+# unray | Python package
 Install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
 ```terminal
 pip install ray[rllib] torch tensorflow
@@ -324,13 +324,6 @@ algo = unray_config.configure_algo(algo_config, env)
 ```
 
 Now, Unray is ready to train your Single Agent Environment.
-
-
-### Multiagent Workflow 
-As well as in the single-agent case, the environment dynamics are defined externally in the UE5 Scenario. Unray lets RLlib comunicate with the enviornment via TPC/IP connection, sending the agent actions defined by ray algorithms and reciving the observation vectors from the environment for the trainer to train. 
-
-#### 1. How does the multiagent dictionaries are structured for sending to UE5 ? 
-Suppose we have *n-agents* in the environment. Each of them with a given **a_i** action vector. This means that we have a total data of the sum of sizes for each action vector. Hence, stacking these vectors we got the final buffer that is send to the socket server from UE5.
 
 
 ### Multiagent Example: Multiagent-Arena
