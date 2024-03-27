@@ -2,26 +2,25 @@
 
 Framework for communication between Unreal Engine and Python.
 
-This repository contains all the files needed for usage in Python.
-
 # Unreal Engine
 
 ### Engine Version
 
-We are currently using Unreal Engine 5.1. We recommend using the same version to ensure project stability.
+We are currently using Unreal Engine 5.2. We recommend using the same version to ensure project stability.
 
 ### Plugin Version
 
-We currently have version 1.1 of the plugin. If you still have version 1.0 please update to this new version.
+We currently have version 1.2 of the plugin. If you still have version 1.0 please update to this new version.
 
 Mistakes regarding the parallel training of Single Agent Environment have been fixed. 
+
+Inference module for trained models has been added.
 
 ## Project Files
 
 In the Maps folder you'll find some examples to run:
 
 ![Maps](https://github.com/Nullspace-Colombia/Multiagents/assets/55969494/dd5a8093-a6da-4c88-8731-1b993d9faec8)
-
 
 ## Custom Envs
 
@@ -130,12 +129,12 @@ This is to set the agents and set the ports in which the communication is going 
 
 
 # UNRAY Bridge
-Clone the repo and install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
+Install the given dependencies. This is just the python-side of the framework. Remember to create or to open a UE5 scene with the official unray-bridge blueprints.
 ```terminal
-https://github.com/Nullspace-Colombia/unray-bridge.git  && cd unray-bridge 
- pip install -r requirements.txt
+pip install ray[rllib] torch tensorflow
+pip install unray
 ```
-We recommend conda for creating a virtualenv and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
+We recommend conda for creating a virtualenv with anaconda and installing the dependendencies. Currently, Ray is available in Python 3.10 or less, so we recommend creating a virtualenv with version 3.10.
 
 ### Running Examples
 There are currently two examples ready for you to run.
@@ -147,7 +146,7 @@ There are currently two examples ready for you to run.
 In Unreal Engine, go to the maps folder and start the Cartpole map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
-python main_cartpole.py
+python Cartpole.py
 ```
 
 If everything is correct, the cartpole will start to move. 
@@ -162,7 +161,7 @@ In this env, you have two agents competing in a single env.
 In Unreal Engine, go to the maps folder and start the MultiAgentArena map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
-python main_multiagentArena.py
+python MultiAgentArena.py
 ```
 
 If everything is correct, the agents will start to move. 
@@ -174,7 +173,7 @@ If everything is correct, the agents will start to move.
 In Unreal Engine, go to the maps folder and start the MultiAgentArena_BP map. Once it is running, go to your terminal an inside the unray-bridge folder run:
 
 ```terminal
-python parallel_multiagentArena.py
+python ParallelMultiAgentArena.py
 ```
 
 If everything is correct, the four envs will start to move. 
@@ -386,6 +385,85 @@ Configure the environment
     algo = unray_config.configure_algo(ppo_config, arena)
 ```
 
+# Inference
+- Currently, we support inference only on models trained with pytorch.
+- Inside Unreal Engine, we currently support only the CPU Runtime.
+- The module has been tested in Single Agent Envs.
+
+## Trainning with Pytorch
+ Go to the algorithms and check how to choose the framework given your algorithm. Configure it in the python file. 
+ 
+Here is an example with PPO:
+```python
+    ppo_config = ppo_config.framework("torch")
+#Configure the rest of the algorithm
+    ppo_config = ppo_config.resources(num_gpus=0)  
+    ppo_config = ppo_config.rollouts(num_rollout_workers=0) 
+```
+
+## Model Preparation
+
+We'll need the model in its ONNX format. To export the model, we'll make use of RLlib's policy methods.
+
+```python
+    policy = algo.get_policy()
+    policy.export_model(outuput_dir,10) # export_model(<output_dir>, <opset_number>
+```
+The 10 in this example is the ONNX opset number. To learn more about opset check: https://onnx.ai/sklearn-onnx/auto_tutorial/plot_cbegin_opset.html https://onnxruntime.ai/docs/reference/compatibility.html
+
+Next, we'll need to modify the model to be able to use it inside Unreal Engine. We need to make sure the input values of the module are the observations and the output correspond to the actions. To do that, we'll make use of this repo: https://github.com/ZhangGe6/onnx-modifier. It's an ONNX graphic modifier. 
+
+Once you've followed their instructions, run the ONNX modifier and open your ONNX model. In our Cartpole example, the model looks like this:
+
+![onnxmodifier](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/27a0c39d-7625-42cb-816e-e360178dbded)
+
+Click on the Identity node and in the panel on the right, which appears after you click, choose the ```Delete With Children``` Option.
+
+![modifier_deletechildren](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/3deed118-512e-4f1d-bf61-1f22bd62814c)
+
+You'll notice the ```state_ins``` node will look like this:
+
+![modifier_satte](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/f78310c5-fea1-4c07-8dcb-66596161665e)
+
+Next, click on the download button:
+
+![modifier_download](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/0a4799b6-94d2-4886-a45a-91592406fb2f)
+
+You can upload the modified model again to check everything is correct.  If you did all the steps, the model should look like this:
+
+![modified_model](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/6ec5b001-acb4-43df-912e-85af26094733)
+
+If you can see, the input to the model is the obs vector and the output is the output vector.
+
+## Bringing your model to Unreal Engine
+
+Now, drag and drop your model to your Content Browser inside Unreal Engine. 
+
+![image](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/d39023f9-fbd9-4eab-aaf7-6d8ddecdcec4)
+
+It will look like this. Currently, we only support CPU Runtinme inside Unreal Engine.
+
+## Use your model inside Unreal Engine
 
 
+We'll make use of the ```BP_Inferencer``` included in the unray plugin. Simply go to the ```Unray Content``` folder, inside the ```Blueprints``` folder and you'll see it.
 
+![BPInferencer](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/3f1960d0-ef99-4ba6-b7ac-bdeba377ee0a)
+
+Place it on your map where your agent is.
+
+If you click on it, on the ```Details``` panel you'll find an Inference category with the next fields: 
+
+![inference_panel](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/0c9d9ae6-4e8a-4bc1-9adb-3dffd3803b23)
+
+In the ```Agent``` variable, choose your agent. In the ```Model Data``` section, choose the model you imported previously. It should appear in a list. 
+
+![choose_model](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/7082f155-b747-4503-9c81-49a57f24ee7e)
+
+In the ```Action Space Type``` choose your action space (Discrete, MultiDiscrete, MultiBinary, Box). And in the ```Shape``` section, input your Action shape separated by commas. (For example, if your env has a MultiDiscrete Action space, with shape (3,2,3), the config will look like this:
+
+![image](https://github.com/Nullspace-Colombia/unray-bridge/assets/55969494/a285aee6-d93f-45d6-adf0-97b3eccfec08)
+
+Remember that your action space must match the one you set in the Python configuration. Otherwise, the model won't be able to match the vectors. 
+
+Play run and your agent should start running. 
