@@ -23,12 +23,12 @@
 
 """
 from .bridge.TCP_IP_Connector import ClientHandler
-from unray.envs.spaces import BridgeSpaces
+from src.unray.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from socket import socket
-from unray.envs.bridge.TCP_IP_Connector import ClientHandler
+from src.unray.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -122,8 +122,9 @@ class BridgeEnv(gymEnv):
             
            
         obs = state[0:n]
-        reward = state[n]
+        #reward = state[n]
         terminated = bool(state[n+1])
+        reward = self.get_reward(obs, terminated, action)
         self.obs = obs 
         # 4. Rewards System
         # For each frame within the termination limits, 
@@ -137,6 +138,35 @@ class BridgeEnv(gymEnv):
         info = {}
 
         return obs, reward, terminated, truncated, info
+    
+    def get_reward(self, observations, done, action):
+                # Extract observations
+        distances = observations[:7]  # Raycast distances
+        track_width = 10.0
+        # Define reward components weights
+        progress_weight = 1.0
+        collision_penalty = -10.0
+        action_penalty = -0.1
+        # Calculate progress reward
+        min_distance = min(distances)
+        progress_reward = progress_weight * (1 - min_distance / track_width)
+
+        # Penalize collisions
+        if min_distance <= 0:  # Collision occurred
+            total_reward = collision_penalty
+        else:
+            total_reward = progress_reward
+
+                   # Penalize sharp turns
+        if action != -1:  # If an action is taken (left: 0, right: 1)
+            total_reward += action_penalty
+
+
+        # Penalize if episode is finished due to max steps reached
+        if done:
+            total_reward -= 5.0  # Additional penalty for exceeding max steps
+
+        return total_reward
 
     def connect_socket(self):
         """
