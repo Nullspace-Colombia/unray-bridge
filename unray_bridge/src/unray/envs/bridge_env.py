@@ -124,7 +124,7 @@ class BridgeEnv(gymEnv):
         obs = state[0:n]
         #reward = state[n]
         terminated = bool(state[n+1])
-        reward = self.get_reward(obs, terminated, action)
+        reward = self.get_reward(obs, action)
         self.obs = obs 
         # 4. Rewards System
         # For each frame within the termination limits, 
@@ -139,34 +139,40 @@ class BridgeEnv(gymEnv):
 
         return obs, reward, terminated, truncated, info
     
-    def get_reward(self, observations, done, action):
+    def get_reward(self, observations, action):
                 # Extract observations
-        distances = observations[:7]  # Raycast distances
-        track_width = 10.0
-        # Define reward components weights
-        progress_weight = 1.0
-        collision_penalty = -10.0
-        action_penalty = -0.1
-        # Calculate progress reward
-        min_distance = min(distances)
-        progress_reward = progress_weight * (1 - min_distance / track_width)
+        COLLISION_PENALTY = -1000   # Penalty for collision with walls
+        OWN_GOAL_PENALTY = -1000    # Penalty for scoring own goals
+        GOAL_SCORE_REWARD = 1000    # Reward for scoring goals in opponent's goal
+        PROGRESS_REWARD = 10        # Reward for making progress towards opponent's goal
+        TURN_PENALTY = -0.1         # Penalty for turning
+        reward = 0
+        distances = observations[::2]
+        detected_objects = observations[1::2]
 
-        # Penalize collisions
-        if min_distance <= 0:  # Collision occurred
-            total_reward = collision_penalty
-        else:
-            total_reward = progress_reward
+        # Check for collision with walls
+        if 1.0 in detected_objects:
+            reward += COLLISION_PENALTY
 
-                   # Penalize sharp turns
-        if action != -1:  # If an action is taken (left: 0, right: 1)
-            total_reward += action_penalty
+        # Check if own goal scored
+        if 5.0 in detected_objects:
+            reward += OWN_GOAL_PENALTY
 
+        # Check if opponent's goal scored
+        if 4.0 in detected_objects:
+            reward += GOAL_SCORE_REWARD
 
-        # Penalize if episode is finished due to max steps reached
-        if done:
-            total_reward -= 5.0  # Additional penalty for exceeding max steps
+        if action[1] == 0 or action[1] == 2:
+        # Penalize turning actions
+            reward += TURN_PENALTY # Penalty increases with the magnitude of the action
 
-        return total_reward
+        # Calculate progress towards opponent's goal based on the average of distances
+        progress = sum(distances) / len(distances)
+
+        # Reward for making progress towards opponent's goal
+        reward += progress * PROGRESS_REWARD
+
+        return reward
 
     def connect_socket(self):
         """
