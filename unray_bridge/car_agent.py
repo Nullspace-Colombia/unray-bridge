@@ -50,7 +50,10 @@ plt.plot(iters,mean_,color = 'black',label='mean')
 plt.plot(iters,min_,ls='dashed',color='red',label='min')
 plt.plot(iters,max_,ls='dashed',color='blue',label='max')
 plt.xlabel('training steps')
-plt.title('PPO 25 Iteration training - LLM Reward')
+plt.title('PPO 25 Iteration training - LLM Reward - Test 1')
 plt.legend()
 plt.ylabel('reward')
-plt.savefig('training_LLM.png')
+plt.savefig('imagenes/training_25_LLM_R1.png')
+
+
+#tensor board: tensorboard --logdir "C:\Users\Valentina\ray_results"
