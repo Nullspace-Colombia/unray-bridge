@@ -1,5 +1,5 @@
 from ray.tune.registry import register_env
-from unray.gui import print_title
+from src.unray.gui import print_title
 
 class UnrayConfig():
     def __init__(self):
@@ -12,7 +12,6 @@ class UnrayConfig():
     def set_ID(self, worker):
         ID = worker.worker_index
         worker.env.set_ID(ID)
-
 
     def configure_algo(self, config, env_t):
         
@@ -43,4 +42,7 @@ class UnrayConfig():
             algo.workers.local_worker().env.connect_socket()
 
         return algo
+
+    def configure_tune(self, env_t):
+        register_env(env_t.get_name(), env_t.get_env())
 
