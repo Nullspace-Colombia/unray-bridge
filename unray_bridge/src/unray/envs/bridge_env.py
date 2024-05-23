@@ -23,12 +23,12 @@
 
 """
 from .bridge.TCP_IP_Connector import ClientHandler
-from unray.envs.spaces import BridgeSpaces
+from src.unray.envs.spaces import BridgeSpaces
 from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from socket import socket
-from unray.envs.bridge.TCP_IP_Connector import ClientHandler
+from src.unray.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
@@ -48,7 +48,8 @@ class BridgeEnv(gymEnv):
                  first_connection = False, 
                  validation = False, 
                  multiagent = False,
-                 ID = int):
+                 ID = int,
+                 isTuner = False):
                  
         
         self.ip = ip # IP Address for IP Connection 
@@ -77,6 +78,9 @@ class BridgeEnv(gymEnv):
         self.obs = self.observation_space.sample()
 
         self.create_handler()
+
+        if isTuner:
+            self.connect_socket()
 
     
     def step(self, action): 
@@ -311,7 +315,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
                  validation = False, 
                  multiagent = False, 
                  #Paralell
-                 ID = int):
+                 ID = int,
+                 isTuner = False):
         
         # gui 
         self.ID = ID
@@ -384,6 +389,8 @@ class MultiAgentBridgeEnv(BridgeEnv, MultiAgentEnv):
 
         self.obs_dict = self.get_dict_template()
         self.dummy_action = self.get_dict_template()
+        if isTuner:
+            self.connect_socket()
         
 
     def get_amount_agents(self) -> int: 

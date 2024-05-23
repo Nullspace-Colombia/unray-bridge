@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "unray"
-version = "1.0.2"
+version = "1.0.3"
 authors = [
+  { name="Valentina Hernández", email="vahernandezmo@unal.edu.co" },
   { name="Andrés Morales", email="amoralesma@unal.edu.co" },
-    { name="Valentina Hernández", email="vahernandezmo@unal.edu.co" },
+    
 ]
 description = "Framework for trainning Reinforcement Learning envs with RLlib and Unreal Eninge 5"
 readme = "README.md"
