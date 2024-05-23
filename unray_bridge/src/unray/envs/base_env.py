@@ -1,5 +1,5 @@
-from src.unray.envs.bridge_env import BridgeEnv
-from src.unray.envs.bridge_env import MultiAgentBridgeEnv
+from unray.envs.bridge_env import BridgeEnv
+from unray.envs.bridge_env import MultiAgentBridgeEnv
 
 class SingleAgentEnv():
     def __init__(self, config, env_name, isTuner = False, ip = 'localhost' , port = 9443, ID=1):
