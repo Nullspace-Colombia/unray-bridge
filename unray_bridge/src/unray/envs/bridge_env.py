@@ -28,7 +28,7 @@ from gymnasium import Env as gymEnv
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import numpy as np
 from socket import socket
-from src.unray.envs.bridge.TCP_IP_Connector import ClientHandler
+from unray.envs.bridge.TCP_IP_Connector import ClientHandler
 
 class BridgeEnv(gymEnv): 
     """
