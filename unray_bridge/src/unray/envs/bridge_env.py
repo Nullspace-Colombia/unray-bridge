@@ -141,36 +141,50 @@ class BridgeEnv(gymEnv):
     
     def get_reward(self, observations, action):
                 # Extract observations
-        COLLISION_PENALTY = -1000   # Penalty for collision with walls
-        OWN_GOAL_PENALTY = -1000    # Penalty for scoring own goals
-        GOAL_SCORE_REWARD = 1000    # Reward for scoring goals in opponent's goal
-        PROGRESS_REWARD = 10        # Reward for making progress towards opponent's goal
-        TURN_PENALTY = -0.1         # Penalty for turning
-        reward = 0
-        distances = observations[::2]
-        detected_objects = observations[1::2]
+        EXTERIOR_WALL = 1.0
+        BALL = 2.0
+        OPPONENT_GOAL = 4.0
+        OWN_GOAL = 5.0
 
-        # Check for collision with walls
-        if 1.0 in detected_objects:
-            reward += COLLISION_PENALTY
+        # Initialize the reward
+        reward = 0.0
+        distances  = observations[0:18]
+        objects = observations[18:36]
+        # Penalty for touching the exterior walls
+        if any(obj == EXTERIOR_WALL for obj in objects):
+            reward -= 10.0  # Large penalty for touching the wall
+        
+        # Penalty for approaching the own goal
+        own_goal_distances = [distances[i] for i in range(18) if objects[i] == OWN_GOAL]
+        if own_goal_distances:
+            min_own_goal_distance = min(own_goal_distances)
+            if min_own_goal_distance != 0:
+                reward -= (1.0 / min_own_goal_distance) * 20.0  # Inverse of the distance to the own goal
 
-        # Check if own goal scored
-        if 5.0 in detected_objects:
-            reward += OWN_GOAL_PENALTY
+        # Incentivize moving towards the ball
+        ball_distances = [distances[i] for i in range(18) if objects[i] == BALL]
+        if ball_distances:
+            
+            min_ball_distance = min(ball_distances)
+            #print(min_ball_distance)
+            if min_ball_distance != 0:
+                reward += (1.0 / min_ball_distance) * 10.0  # Inverse of the distance to the ball
 
-        # Check if opponent's goal scored
-        if 4.0 in detected_objects:
-            reward += GOAL_SCORE_REWARD
+        # Incentivize moving towards the opponent's goal
+        goal_distances = [distances[i] for i in range(18) if objects[i] == OPPONENT_GOAL]
+        if goal_distances:
+            min_goal_distance = min(goal_distances)
+            #print(min_goal_distance)
+            if min_goal_distance != 0:
+                reward += (1.0 / min_goal_distance) * 20.0  # Inverse of the distance to the opponent's goal
 
-        if action[1] == 0 or action[1] == 2:
-        # Penalize turning actions
-            reward += TURN_PENALTY # Penalty increases with the magnitude of the action
+        # Encourage forward movement
+        walk, turn = action
 
-        # Calculate progress towards opponent's goal based on the average of distances
-        progress = sum(distances) / len(distances)
-
-        # Reward for making progress towards opponent's goal
-        reward += progress * PROGRESS_REWARD
+        if walk == 0 or walk == 1:  # Move forward or backwards
+            reward += 1.0  # Reward for moving forward
+        elif turn == 2 or turn == 3 or turn == 4:  # Turn left
+            reward -= 0.5  # Slight reward for turning left (can be adjusted)
 
         return reward
 
