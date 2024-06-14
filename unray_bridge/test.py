@@ -22,7 +22,7 @@ high = np.array(
 ppo_config = PPOConfig()
 
 #ppo_config = ppo_config.training(gamma=0.99, lr=0.0001, clip_param=0.2, lambda_=0.95)
-ppo_config = ppo_config.resources(num_gpus=1)
+ppo_config = ppo_config.resources(num_gpus=0)
 ppo_config = ppo_config.rollouts(num_rollout_workers=0)
 
 
@@ -38,7 +38,7 @@ env_config = {
 unray_config = UnrayConfig()
 
 # Path
-path = "C:/Users/Valentina/Documents/1_Universidad/AI/4_Tests/NPC/R2" #"E:/Universidad/Codigo/Nullspace/UE5/AgentGardenProject/Models/soccer-v2"
+#path = "C:/Users/Valentina/Documents/1_Universidad/AI/4_Tests/NPC/R2" #"E:/Universidad/Codigo/Nullspace/UE5/AgentGardenProject/Models/soccer-v2"
 
 # Create instance of single agent environment
 env = SingleAgentEnv(env_config, "npc")
@@ -46,7 +46,7 @@ env = SingleAgentEnv(env_config, "npc")
 # Create algo instance
 algo = unray_config.configure_algo(ppo_config, env)
 
-algo.restore(path) #= Algorithm.from_checkpoint(path)
+#algo.restore(path) #= Algorithm.from_checkpoint(path)
 mean_ = []
 min_ = []
 max_ = []
@@ -59,5 +59,5 @@ for i in range (51):
 
     if i % 5 == 0:
 
-        save_result = algo.save(path)#("C:/Users/gonza/AppData/Local/Temp/tmp10hjh2wd")
+        #save_result = algo.save(path)#("C:/Users/gonza/AppData/Local/Temp/tmp10hjh2wd")
         print("An Algorithm checkpoint has been created inside directory: "f"'{save_result}'.")
