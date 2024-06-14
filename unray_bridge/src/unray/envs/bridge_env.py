@@ -67,7 +67,7 @@ class BridgeEnv(gymEnv):
         self.dummy_action = None
         self.validation = validation
         self.multiagent = multiagent 
-        self.reset_count = -2
+        self.reset_count = 0
         
         try: 
             self.observation_space = config["observation"] # Get imported space 
@@ -129,7 +129,7 @@ class BridgeEnv(gymEnv):
         reward = state[n]
         terminated = bool(state[n+1])
         self.obs = obs 
-        print(f"-- INFO: {state}")
+        
         # 4. Rewards System
         # For each frame within the termination limits, 
         ##reward = self.counter
@@ -180,7 +180,7 @@ class BridgeEnv(gymEnv):
             obs = np.asarray(self.obs, dtype=self.observation_space.dtype)
 
         self.reset_count = self.reset_count+1
-        print(f"----RESET COUNT --- : {self.reset_count}")
+
         return obs, {}
 
     def get_multiagent_state_dict(received_vector: np.array): 
