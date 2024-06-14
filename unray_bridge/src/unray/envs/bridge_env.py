@@ -67,7 +67,7 @@ class BridgeEnv(gymEnv):
         self.dummy_action = None
         self.validation = validation
         self.multiagent = multiagent 
-        self.reset_count = -2
+        self.reset_count = 0
         
         try: 
             self.observation_space = config["observation"] # Get imported space 
